@@ -13,14 +13,13 @@
 #include <getopt.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
-#include "queueUtility.h"
 
 long file_size(const char *path);
 int get_fd(const char *filename);
 char *get_file_extension(const char *filename);
 int is_binary(const char *filename);
-void getArgs(int argc, char *argv[], long *nThreads, long *queueSize, char *path, long *delay, node_t **fileList);
-int isNumber(char *str);
+void getArgs(int argc, char *argv[], long *nThreads, long *queueSize, char *path, long *delay);
+int isNumber(char *str, long* num);
 int is_regular(const char *path);
 int isValid(const char *path);
 

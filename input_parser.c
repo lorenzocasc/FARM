@@ -8,7 +8,8 @@
 #include <getopt.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
-#include "headers/queueUtility.h"
+#include "headers/threadpool.h"
+
 
 long file_size(const char *path) {
 
@@ -98,7 +99,7 @@ int isNumber(const char *s, long *n) {
 }
 
 
-void getArgs(int argc, char *input[], long *nThreads, long *queueSize, char *path, long *delay, node_t **head) {
+void getArgs(int argc, char *input[], long *nThreads, long *queueSize, char *path, long *delay) {
     int opt;
     while (optind < argc) {
         if ((opt = getopt(argc, input, "n:q:d:t:")) != -1) {
@@ -132,18 +133,8 @@ void getArgs(int argc, char *input[], long *nThreads, long *queueSize, char *pat
                     exit(1);
             }
         }else{
-            if(isValid(input[optind]) <= 0){
-                printf("Error: invalid file path\n");
-                optind++;
-                continue;
-            }else{
-                int fd = get_fd(input[optind]);
-                push(head,fd, input[optind]);
-                optind++;
-            }
+            optind++;
         }
-
     }
-
 }
 

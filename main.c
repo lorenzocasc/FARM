@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "headers/input_parser.h"
+#include "headers/masterworker.h"
 
 
 int main(int argc, char *argv[]) {
@@ -13,19 +14,22 @@ int main(int argc, char *argv[]) {
     //argc = sizeof(myArgs) / sizeof(myArgs[0]) - 1;
 
 
-    long *nThreads = malloc(sizeof(long));
-    long *queueSize = malloc(sizeof(long));
-    char *path = malloc(sizeof(char) * 256);
-    long *delay = malloc(sizeof(long));
-    node_t *head = NULL;
+    pid_t pid = fork();
+    if(pid == -1){
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+    if(pid == 0){
 
-    getArgs(argc, argv, nThreads, queueSize, path, delay, &head);
+    }
+    if(pid > 0){
+       executeMasterWorker(argc, argv);
+    }
 
-    printList(head);
-    printf("nThreads: %ld\n", *nThreads);
-    printf("queueSize: %ld\n", *queueSize);
-    printf("path: %s\n", path);
-    printf("delay: %ld\n", *delay);
+
+
+
+
 
 
 }
