@@ -31,6 +31,7 @@ typedef struct taskfun_t {
 typedef struct threadpool_t {
     pthread_mutex_t  lock;    // mutua esclusione nell'accesso all'oggetto
     pthread_cond_t   cond;    // usata per notificare un worker thread
+    pthread_cond_t  queue_cond; //usata per notificare che la queue non è piena
     pthread_t      * threads; // array di worker id
     int numthreads;           // numero di thread (size dell'array threads)
     taskfun_t *pending_queue; // coda interna per task pendenti

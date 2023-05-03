@@ -78,11 +78,5 @@ void *executeMasterWorker(int argc, char* argv[]) {
     printf("threadpool->queue_size: %d\n", threadpool->queue_size);
     printf("threadpool->num_threads: %d\n", threadpool->numthreads);
 
-    /*taskfun_t *temp = threadpool->pending_queue;
-    for(int i = 0;i < threadpool->count; i++){
-        printf("%s\n", temp[i].arg);
-    }
-    */
-
 }
 

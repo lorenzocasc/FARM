@@ -22,7 +22,7 @@ static void *workerpool_thread(void *threadpool) {
     pthread_t self = pthread_self();
     int myid = -1;
 
-    // non efficiente, si puo' fare meglio.....
+    // non efficiente, si puo' fare meglio
     do {
         for (int i=0;i<pool->numthreads;++i)
             if (pthread_equal(pool->threads[i], self)) {
@@ -58,6 +58,7 @@ static void *workerpool_thread(void *threadpool) {
 
         LOCK_RETURN(&(pool->lock), NULL);
         pool->taskonthefly--;
+        pthread_cond_signal(&(pool->queue_cond));
     }
     UNLOCK_RETURN(&(pool->lock), NULL);
 
@@ -108,7 +109,8 @@ threadpool_t *createThreadPool(int numthreads, int pending_size) {
         return NULL;
     }
     if ((pthread_mutex_init(&(pool->lock), NULL) != 0) ||
-        (pthread_cond_init(&(pool->cond), NULL) != 0))  {
+        (pthread_cond_init(&(pool->cond), NULL) != 0) ||
+            (pthread_cond_init(&(pool->queue_cond), NULL) != 0)){
         free(pool->threads);
         free(pool->pending_queue);
         free(pool);
@@ -167,10 +169,25 @@ int addToThreadPool(threadpool_t *pool, void (*f)(void *), void *arg) {
     int nopending  = (pool->queue_size == -1); // non dobbiamo gestire messaggi pendenti
 
     // coda piena o in fase di uscita
+    //deve attendere qui
+    /*
     if (pool->count >= queue_size || pool->exiting)  {
         UNLOCK_RETURN(&(pool->lock),-1);
         return 1; // esco con valore "coda piena"
     }
+    */
+
+    if(pool->exiting){
+        UNLOCK_RETURN(&(pool->lock),-1);
+        return 1;
+    }
+
+    while(pool->count>=queue_size) {
+        printf("si mette in attesa\n");
+        pthread_cond_wait(&(pool->queue_cond), &(pool->lock));
+        printf("finita l' attesa\n");
+    }
+
 
     if (pool->taskonthefly >= pool->numthreads) {
         if (nopending) {
