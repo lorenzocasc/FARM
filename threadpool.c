@@ -12,6 +12,8 @@
 #include "headers/threadpool.h"
 #include "headers/utils.h"
 
+
+
 /**
  * @function void *threadpool_thread(void *threadpool)
  * @brief funzione eseguita dal thread worker che appartiene al pool
@@ -80,7 +82,7 @@ static int freePoolResources(threadpool_t *pool) {
     return 0;
 }
 
-threadpool_t *createThreadPool(int numthreads, int pending_size) {
+threadpool_t *createThreadPool(long numthreads, long pending_size) {
     if(numthreads <= 0 || pending_size < 0) {
         errno = EINVAL;
         return NULL;
@@ -140,7 +142,7 @@ int destroyThreadPool(threadpool_t *pool, int force) {
 
     pool->exiting = 1 + force;
 
-    if (pthread_cond_broadcast(&(pool->cond)) != 0) {
+    if (pthread_cond_broadcast(&(pool->cond)) != 0 || pthread_cond_broadcast(&(pool->queue_cond)) !=0 ) {
         UNLOCK_RETURN(&(pool->lock),-1);
         errno = EFAULT;
         return -1;
@@ -168,24 +170,16 @@ int addToThreadPool(threadpool_t *pool, void (*f)(void *), void *arg) {
     int queue_size = abs(pool->queue_size);
     int nopending  = (pool->queue_size == -1); // non dobbiamo gestire messaggi pendenti
 
-    // coda piena o in fase di uscita
-    //deve attendere qui
-    /*
-    if (pool->count >= queue_size || pool->exiting)  {
-        UNLOCK_RETURN(&(pool->lock),-1);
-        return 1; // esco con valore "coda piena"
-    }
-    */
 
+    //queue in exit fase
     if(pool->exiting){
         UNLOCK_RETURN(&(pool->lock),-1);
         return 1;
     }
 
+    //queue full waiting for a thread to finish
     while(pool->count>=queue_size) {
-        printf("si mette in attesa\n");
         pthread_cond_wait(&(pool->queue_cond), &(pool->lock));
-        printf("finita l' attesa\n");
     }
 
 

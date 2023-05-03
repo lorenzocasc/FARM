@@ -4,4 +4,4 @@ project(solProject C)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(solProject
-        main.c headers/input_parser.h input_parser.c headers/threadpool.h headers/MasterWorker.h MasterWorker.c threadpool.c headers/utils.h)
+        main.c headers/input_parser.h input_parser.c headers/threadpool.h headers/MasterWorker.h MasterWorker.c threadpool.c headers/utils.h headers/queue.h queue.c)

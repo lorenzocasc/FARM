@@ -73,6 +73,12 @@ build CMakeFiles/solProject.dir/threadpool.c.o: C_COMPILER__solProject_Debug /Us
   OBJECT_DIR = CMakeFiles/solProject.dir
   OBJECT_FILE_DIR = CMakeFiles/solProject.dir
 
+build CMakeFiles/solProject.dir/queue.c.o: C_COMPILER__solProject_Debug /Users/lorenzocascone/Documents/GitHub/solProject/queue.c || cmake_object_order_depends_target_solProject
+  DEP_FILE = CMakeFiles/solProject.dir/queue.c.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.6 -fcolor-diagnostics -std=gnu11
+  OBJECT_DIR = CMakeFiles/solProject.dir
+  OBJECT_FILE_DIR = CMakeFiles/solProject.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target solProject
@@ -81,7 +87,7 @@ build CMakeFiles/solProject.dir/threadpool.c.o: C_COMPILER__solProject_Debug /Us
 #############################################
 # Link the executable solProject
 
-build solProject: C_EXECUTABLE_LINKER__solProject_Debug CMakeFiles/solProject.dir/main.c.o CMakeFiles/solProject.dir/input_parser.c.o CMakeFiles/solProject.dir/MasterWorker.c.o CMakeFiles/solProject.dir/threadpool.c.o
+build solProject: C_EXECUTABLE_LINKER__solProject_Debug CMakeFiles/solProject.dir/main.c.o CMakeFiles/solProject.dir/input_parser.c.o CMakeFiles/solProject.dir/MasterWorker.c.o CMakeFiles/solProject.dir/threadpool.c.o CMakeFiles/solProject.dir/queue.c.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.6
   OBJECT_DIR = CMakeFiles/solProject.dir
   POST_BUILD = :

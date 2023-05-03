@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "headers/input_parser.h"
-#include "headers/masterworker.h"
+#include "headers/MasterWorker.h"
 
 
 int main(int argc, char *argv[]) {

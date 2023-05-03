@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include "headers/queue.h"
+
 
 static long nThreads = 4;
 static long queueSize = 8;
@@ -25,54 +27,33 @@ void* ciao(char *string){
 void *executeMasterWorker(int argc, char* argv[]) {
 
     char *path = malloc(sizeof(char) * 255);
-    int opt;
-    getArgs(argc, argv, &nThreads, &queueSize, path, &delay);
+    node_t *head = NULL;
+    int queue=0; //flag that assumes 1 only if a queue of files is passed
+    getConfigArgs(argc, argv, &nThreads, &queueSize, path, &delay, &queue);
+
+    if(queue == 0 && strlen(path)==0){
+        printf("Error: no path or queue of files passed\n");
+        exit(EXIT_FAILURE);
+    }
 
     printf("nThreads: %ld\n", nThreads);
     printf("queueSize: %ld\n", queueSize);
     printf("path: %s\n", path);
     printf("delay: %ld\n", delay);
+    printf("queue: %d\n", queue);
 
     threadpool_t* threadpool = createThreadPool(nThreads, queueSize);
 
+    //getConfigArgs(argc, argv, &nThreads, &queueSize, path, &delay);
+    getArgs(argc, argv, threadpool, &queue, path, &head);
 
-
-    //This function retrives, if present, the list of files from argv
-
-    optind = 1;
-    while(optind < argc){
-        if ((opt = getopt(argc, argv, "n:q:d:t:")) == -1){
-            if(isValid(argv[optind]) <= 0){
-                printf("Error: invalid file path %s\n", argv[optind]);
-                optind++;
-                continue;
-            }else{
-                int success = addToThreadPool(threadpool, (void*)ciao, argv[optind]);
-                if(success == -1){
-                    printf("Error: addToThreadPool\n");
-                    optind++;
-                    continue;
-                }
-                if(success == 1)continue;
-
-                optind++;
-            }
-       }
-    }
 
     //Wait for threads to finish
     destroyThreadPool(threadpool,0);
 
-
-
-    //This function retrives, if present, the list of files from the directory and put them in the threadpool
-    if(path!=NULL && strlen(path)>0){
-
-    }else{
-        free(path);
-    }
-
-
+    //free memory
+    free(path);
+    freeQueue(&head);
 
 
     printf("threadpool->queue_size: %d\n", threadpool->queue_size);

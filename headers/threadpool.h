@@ -4,7 +4,6 @@
 
 #ifndef SOLPROJECT_THREADPOOL_H
 #define SOLPROJECT_THREADPOOL_H
-
 #include <pthread.h>
 
 /**
@@ -50,7 +49,7 @@ typedef struct threadpool_t {
  *
  * @return un nuovo thread pool oppure NULL ed errno settato opportunamente
  */
-threadpool_t *createThreadPool(int numthreads, int pending_size);
+threadpool_t *createThreadPool(long numthreads, long pending_size);
 
 /**
  * @function destroyThreadPool
@@ -81,4 +80,5 @@ int addToThreadPool(threadpool_t *pool, void (*fun)(void *),void *arg);
  * @return 0 se successo, -1 in caso di fallimento, errno viene settato opportunamente.
  */
 int spawnThread(void (*f)(void*), void* arg);
+
 #endif //SOLPROJECT_THREADPOOL_H
