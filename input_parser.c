@@ -273,7 +273,8 @@ void getArgs(int argc, char *input[], threadpool_t *pool, int *queue, char *path
                     optind++;
                     continue;
                 } else {
-                    int x = addToThreadPool(pool, (void *) ciao, input[optind]);
+                    //int x = addToThreadPool(pool, (void *) ciao, input[optind]);
+                    int x = addToThreadPool(pool, (void *)value, input[optind]);
                     if (x == -1) {
                         printf("Error: Error while inserting the task \n");
                         optind++;

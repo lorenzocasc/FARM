@@ -18,7 +18,11 @@ static long queueSize = 8;
 static long delay = 0;
 
 
-void* ciao(char *string){
+int value(char *string){
+    return atoi(string);
+}
+
+void *ciao(char *string){
     printf("Dal thread %s\n", string);
     return NULL;
 }
@@ -35,16 +39,18 @@ void *executeMasterWorker(int argc, char* argv[]) {
         printf("Error: no path or queue of files passed\n");
         exit(EXIT_FAILURE);
     }
-
+    //divisor between prints
+    printf("--------------------\n");
     printf("nThreads: %ld\n", nThreads);
     printf("queueSize: %ld\n", queueSize);
     printf("path: %s\n", path);
     printf("delay: %ld\n", delay);
     printf("queue: %d\n", queue);
-
+    printf("--------------------\n");
+    //create threadpool
     threadpool_t* threadpool = createThreadPool(nThreads, queueSize);
 
-    //getConfigArgs(argc, argv, &nThreads, &queueSize, path, &delay);
+    //get files from the directory or the queue of files
     getArgs(argc, argv, threadpool, &queue, path, &head);
 
 
