@@ -256,7 +256,7 @@ void getArgs(int argc, char *input[], threadpool_t *pool, int *queue, char *path
     node_t *temp = *head;
     //iterate over the list of nodes and add the tasks to the threadpool
     while (temp != NULL) {
-        int x = addToThreadPool(pool, (void *) ciao, temp->string);
+        int x = addToThreadPool(pool, (void *)value, temp->string);
         if (x == -1) {
             printf("Error: Error while inserting the task \n");
             temp = temp->next;
@@ -273,7 +273,7 @@ void getArgs(int argc, char *input[], threadpool_t *pool, int *queue, char *path
                     optind++;
                     continue;
                 } else {
-                    //int x = addToThreadPool(pool, (void *) ciao, input[optind]);
+                    //int x = addToThreadPool(pool, (void *) ciao.dat, input[optind]);
                     int x = addToThreadPool(pool, (void *)value, input[optind]);
                     if (x == -1) {
                         printf("Error: Error while inserting the task \n");

@@ -54,9 +54,8 @@ static void *workerpool_thread(void *threadpool) {
 
         pool->taskonthefly++;
         UNLOCK_RETURN(&(pool->lock), NULL);
-
         // eseguo la funzione
-        (*(task.fun))(task.arg);
+        long p = (*(task.fun))(task.arg);
 
         LOCK_RETURN(&(pool->lock), NULL);
         pool->taskonthefly--;
@@ -160,7 +159,7 @@ int destroyThreadPool(threadpool_t *pool, int force) {
     return 0;
 }
 
-int addToThreadPool(threadpool_t *pool, void (*f)(void *), void *arg) {
+int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
     if(pool == NULL || f == NULL) {
         errno = EINVAL;
         return -1;
@@ -223,7 +222,7 @@ static void *proxy_thread(void *arg) {
 }
 
 // fa lo spawn di un thread in modalità detached
-int spawnThread(void (*f)(void*), void* arg) {
+int spawnThread(long (*f)(void*), void* arg) {
     if (f == NULL) {
         errno = EINVAL;
         return -1;

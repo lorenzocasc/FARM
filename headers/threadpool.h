@@ -19,7 +19,7 @@
  *  @var arg Argomento della funzione
  */
 typedef struct taskfun_t {
-    void (*fun)(void *);
+    long (*fun)(void *);
     void *arg;
 } taskfun_t;
 
@@ -69,7 +69,7 @@ int destroyThreadPool(threadpool_t *pool, int force);
  * @param arg  argomento della funzione
  * @return 0 se successo, 1 se non ci sono thread disponibili e/o la coda è piena, -1 in caso di fallimento, errno viene settato opportunamente.
  */
-int addToThreadPool(threadpool_t *pool, void (*fun)(void *),void *arg);
+int addToThreadPool(threadpool_t *pool, long (*fun)(void *),void *arg);
 
 
 /**
@@ -79,6 +79,6 @@ int addToThreadPool(threadpool_t *pool, void (*fun)(void *),void *arg);
  * @param arg  argomento della funzione
  * @return 0 se successo, -1 in caso di fallimento, errno viene settato opportunamente.
  */
-int spawnThread(void (*f)(void*), void* arg);
+int spawnThread(long (*f)(void*), void* arg);
 
 #endif //SOLPROJECT_THREADPOOL_H

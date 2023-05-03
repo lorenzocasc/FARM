@@ -11,7 +11,6 @@
 
 
 void * executeMasterWorker(int argc, char* argv[]);
-void *ciao(char *string);
-int value(char *string);
+long value(char *string);
 
 #endif //SOLPROJECT_MASTERWORKER_H

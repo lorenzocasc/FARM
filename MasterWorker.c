@@ -18,13 +18,27 @@ static long queueSize = 8;
 static long delay = 0;
 
 
-int value(char *string){
-    return atoi(string);
-}
+long value(char *string){
+    long sum = 0;
+    long number;
+    int i = 0;
+    FILE *fp = fopen(string, "rb");
+    if (fp == NULL){
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
 
-void *ciao(char *string){
-    printf("Dal thread %s\n", string);
-    return NULL;
+    while (fread(&number, sizeof(number), 1, fp) == 1){
+        sum += i * number;
+        i++;
+    }
+
+    if (fclose(fp) != 0) {
+        perror("Errore chiusura file binario");
+        exit(EXIT_FAILURE);
+    }
+    printf("sum: %ld\n", sum);
+    return sum;
 }
 
 
@@ -64,6 +78,6 @@ void *executeMasterWorker(int argc, char* argv[]) {
 
     printf("threadpool->queue_size: %d\n", threadpool->queue_size);
     printf("threadpool->num_threads: %d\n", threadpool->numthreads);
-
+    return NULL;
 }
 

@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
 
-    //char* myArgs[] = {"program_name", "-n", "5","ciao","cane","gatto", "-q", "6", "-d", "iv.txt", "-t", "300", NULL};
+    //char* myArgs[] = {"program_name", "-n", "5","ciao.dat","cane","gatto", "-q", "6", "-d", "iv.txt", "-t", "300", NULL};
     //argc = sizeof(myArgs) / sizeof(myArgs[0]) - 1;
 
 
