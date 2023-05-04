@@ -57,6 +57,12 @@ static void *workerpool_thread(void *threadpool) {
         // eseguo la funzione
         long p = (*(task.fun))(task.arg);
 
+        //prima di scrivere sulla socket lock
+        //scrivo
+        //unlock
+
+
+
         LOCK_RETURN(&(pool->lock), NULL);
         pool->taskonthefly--;
         pthread_cond_signal(&(pool->queue_cond));

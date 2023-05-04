@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include "headers/queue.h"
 
 
 static long nThreads = 4;
@@ -25,6 +24,7 @@ long value(char *string){
     FILE *fp = fopen(string, "rb");
     if (fp == NULL){
         perror("fopen");
+        free(string);
         exit(EXIT_FAILURE);
     }
 
@@ -35,9 +35,10 @@ long value(char *string){
 
     if (fclose(fp) != 0) {
         perror("Errore chiusura file binario");
+        free(string);
         exit(EXIT_FAILURE);
     }
-    printf("sum: %ld\n", sum);
+    free(string);
     return sum;
 }
 
@@ -45,15 +46,16 @@ long value(char *string){
 void *executeMasterWorker(int argc, char* argv[]) {
 
     char *path = malloc(sizeof(char) * 255);
-    node_t *head = NULL;
+    int fd_c;
+
     int queue=0; //flag that assumes 1 only if a queue of files is passed
     getConfigArgs(argc, argv, &nThreads, &queueSize, path, &delay, &queue);
-
     if(queue == 0 && strlen(path)==0){
-        printf("Error: no path or queue of files passed\n");
+        printf("Error: no directory or queue of files passed\n");
         exit(EXIT_FAILURE);
     }
-    //divisor between prints
+
+
     printf("--------------------\n");
     printf("nThreads: %ld\n", nThreads);
     printf("queueSize: %ld\n", queueSize);
@@ -61,11 +63,13 @@ void *executeMasterWorker(int argc, char* argv[]) {
     printf("delay: %ld\n", delay);
     printf("queue: %d\n", queue);
     printf("--------------------\n");
+
+
     //create threadpool
     threadpool_t* threadpool = createThreadPool(nThreads, queueSize);
 
     //get files from the directory or the queue of files
-    getArgs(argc, argv, threadpool, &queue, path, &head);
+    getArgs(argc, argv, threadpool, &queue, path);
 
 
     //Wait for threads to finish
@@ -73,7 +77,6 @@ void *executeMasterWorker(int argc, char* argv[]) {
 
     //free memory
     free(path);
-    freeQueue(&head);
 
 
     printf("threadpool->queue_size: %d\n", threadpool->queue_size);
