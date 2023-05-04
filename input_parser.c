@@ -209,6 +209,7 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
 
                     char *pis = malloc(strlen(input[optind]) + 1);
                     strcpy(pis, input[optind]);
+                    pis[strlen(input[optind])] = '\0';
                     int x = addToThreadPool(pool, (void *) value, pis);
                     if (x == -1) {
                         printf("Error: Error while inserting the task \n");

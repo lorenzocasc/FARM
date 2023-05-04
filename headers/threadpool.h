@@ -39,6 +39,8 @@ typedef struct threadpool_t {
     int queue_size;           // massima size della coda, puo' essere anche -1 ad indicare che non si vogliono gestire task pendenti
     int taskonthefly;         // numero di task attualmente in esecuzione
     int head, tail;           // riferimenti della coda
+    int socket_fd;            // socket del server
+    int delayTp;                // delay tra l'invio di due messaggi
     int count;                // numero di task nella coda dei task pendenti
     int exiting;              // se > 0 e' iniziato il protocollo di uscita, se 1 il thread aspetta che non ci siano piu' lavori in coda
 } threadpool_t;
@@ -51,7 +53,7 @@ typedef struct threadpool_t {
  *
  * @return un nuovo thread pool oppure NULL ed errno settato opportunamente
  */
-threadpool_t *createThreadPool(long numthreads, long pending_size);
+threadpool_t *createThreadPool(long numthreads, long pending_size, long delay, int socket_fd);
 
 /**
  * @function destroyThreadPool
