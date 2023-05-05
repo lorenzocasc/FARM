@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/errno.h>
-#include <getopt.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include "threadpool.h"
@@ -23,7 +22,7 @@ char *get_file_extension(const char *filename);
 
 int is_binary(const char *filename);
 
-void getConfigArgs(int argc, char *argv[], long *nThreads, long *queueSize, char *path, long *delay, int *queue);
+void getConfigArgs(int argc, char *argv[], long *nThreads, long *queueSize, char **path, long *delay, int *queue);
 
 void getArgs(int argc, char *argv[], threadpool_t *pool, const int *queue, char *path);
 

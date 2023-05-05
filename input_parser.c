@@ -1,17 +1,19 @@
 //
 // Created by Lorenzo Cascone on 01/05/23.
 //
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/errno.h>
-#include <getopt.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <dirent.h>
 #include "headers/threadpool.h"
 #include "headers/MasterWorker.h"
 #include "headers/input_parser.h"
+#include <getopt.h>
 
 #define maxPath 255
 
@@ -91,23 +93,26 @@ int directoryFetch(char *path, threadpool_t *pool) {
     DIR *dir;
     struct dirent *ent;
     int length;
+    char temp_array[maxPath];
 
     if ((dir = opendir(path)) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
 
                 length = strlen(path) + strlen(ent->d_name) + 2;
-                char *newPath = malloc(length * sizeof(char));
-                strncpy(newPath, path, length);
-                strncat(newPath, "/", length);
-                strncat(newPath, ent->d_name, length);
-                length = strlen(newPath);
-                newPath[length] = '\0';
+                strncpy(temp_array, path, length);
+                strncat(temp_array, "/", length);
+                strncat(temp_array, ent->d_name, length);
+                length = strlen(temp_array);
+                temp_array[length] = '\0';
 
-                if (isDirectory(newPath)) {
-                    directoryFetch(newPath, pool);
+                if (isDirectory(temp_array)) {
+                    directoryFetch(temp_array, pool);
                 } else {
-                    if (isValid(newPath) == 1) {
+                    if (isValid(temp_array) == 1) {
+                        char *newPath = malloc(length * sizeof(char)+1);
+                        strncpy(newPath, temp_array, length);
+                        newPath[length] = '\0';
                         addToThreadPool(pool, (void *) value, newPath);
                     }
                 }
@@ -149,78 +154,88 @@ int isNumber(const char *s, long *n) {
 }
 
 
-void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, char *path, long *delay, int *queue) {
-    int opt;
-    while (optind < argc) {
-        if ((opt = getopt(argc, input, "n:q:d:t:")) != -1) {
-            switch (opt) {
-                case 'n':
-                    if (isNumber(optarg, nThreads)) {
-                        printf("Error on %c: invalid argument\n", optopt);
-                        exit(1);
-                    }
-                    break;
-                case 'q':
-                    if (isNumber(optarg, queueSize)) {
-                        printf("Error on %c: invalid argument\n", optopt);
-                        exit(1);
-                    }
-                    break;
-                case 'd':
-                    strcpy(path, optarg);
-                    break;
-                case 't':
-                    if (isNumber(optarg, delay)) {
-                        printf("Error on %c: invalid argument\n", optopt);
-                        exit(1);
-                    }
-                    break;
-                case ':':
-                    printf("Error: '-%c' missing argument\n", optopt);
+void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, char **path, long *delay, int *queue) {
+    int opt = 0;
+
+    while ((opt = getopt(argc, input, "n:q:d:t:")) != -1) {
+        switch (opt) {
+            case 'n':
+                if (isNumber(optarg, nThreads)) {
+                    printf("Error on %c: invalid argument\n", optopt);
                     exit(1);
-                default:
-                    printf("Error: invalid argument\n");
+                }
+                break;
+            case 'q':
+                if (isNumber(optarg, queueSize)) {
+                    printf("Error on %c: invalid argument\n", optopt);
                     exit(1);
-            }
-        } else {
-            *queue = 1;
-            optind++;
+                }
+                break;
+            case 'd':
+                *path = malloc(strlen(optarg) + 1);
+                strncpy(*path, optarg, strlen(optarg));
+                (*path)[strlen(optarg)] = '\0';
+                break;
+            case 't':
+                if (isNumber(optarg, delay)) {
+                    printf("Error on %c: invalid argument\n", optopt);
+                    exit(1);
+                }
+                break;
+            case ':':
+                printf("Error: '-%c' missing argument\n", optopt);
+                exit(1);
+            case '?':
+                printf("Error: invalid argument '-%c'\n", optopt);
+                exit(1);
+            default:
+                printf("Error: invalid argument\n");
+                exit(1);
         }
     }
+
+    if (opt == -1 && (argc-optind)>0) {
+        *queue = 1;
+    }
+    //}
+
 }
 
 
 void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char *path) {
     int opt;
-    optind = 1;
+    //optind = 1;
 
-    if (strlen(path) != 0) {
-        directoryFetch(path, pool);
+    if (path != NULL) {
+        if (strlen(path) != 0) {
+            directoryFetch(path, pool);
+        }
     }
+
 
     if (*queue == 1) {
         while (optind < argc) {
-            if ((opt = getopt(argc, input, "n:q:d:t:")) == -1) {
-                if (isValid(input[optind]) <= 0) {
-                    printf("Error: invalid file path\n");
+            if (isValid(input[optind]) <= 0) {
+                printf("Error: invalid file path\n");
+                optind++;
+                continue;
+            } else {
+
+                char *pis = malloc(strlen(input[optind]) + 1);
+                strcpy(pis, input[optind]);
+                pis[strlen(input[optind])] = '\0';
+                printf("File path: %s\n", pis);
+                int x = addToThreadPool(pool, (void *) value, pis);
+                if (x == -1) {
+                    printf("Error: Error while inserting the task \n");
                     optind++;
                     continue;
-                } else {
-
-                    char *pis = malloc(strlen(input[optind]) + 1);
-                    strcpy(pis, input[optind]);
-                    pis[strlen(input[optind])] = '\0';
-                    int x = addToThreadPool(pool, (void *) value, pis);
-                    if (x == -1) {
-                        printf("Error: Error while inserting the task \n");
-                        optind++;
-                        continue;
-                    }
-                    optind++;
                 }
+                optind++;
             }
         }
     }
+
 
 }
 
