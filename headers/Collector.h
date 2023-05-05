@@ -5,7 +5,7 @@
 #ifndef SOLPROJECT_COLLECTOR_H
 #define SOLPROJECT_COLLECTOR_H
 
-void collectorExecutor();
-
+void collectorExecutor(int sockfd);
+void deleteSocket();
 #endif //SOLPROJECT_COLLECTOR_H
 

@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#define SOCK_PATH "./farm.sck"
 
 
 
@@ -22,6 +23,37 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    // cancello il socket file se esiste
+    deleteSocket();
+    // se qualcosa va storto ....
+    atexit(deleteSocket);
+
+    int sockfd;
+    struct sockaddr_un server_addr;
+
+    //Create socket
+    if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+        perror("Error creating socket");
+        exit(EXIT_FAILURE);
+    }
+
+    //Set server address
+    memset(&server_addr, 0, sizeof(server_addr)); //clear struct
+    server_addr.sun_family = AF_UNIX; //set family
+    strcpy(server_addr.sun_path, SOCK_PATH); //set path
+
+    //bind socket
+    if (bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
+        perror("Error binding socket");
+        exit(EXIT_FAILURE);
+    }
+
+    //listen
+    if (listen(sockfd, 1) == -1) {
+        perror("Error listening");
+        exit(EXIT_FAILURE);
+    }
+
 
 
     pid_t pid = fork();
@@ -30,11 +62,11 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     if(pid == 0){
-        collectorExecutor();
+        collectorExecutor(sockfd);
+        close(sockfd);
     }
     if(pid > 0){
-        sleep(1);
-       executeMasterWorker(argc, argv);
+        executeMasterWorker(argc, argv);
     }
 
 

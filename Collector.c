@@ -19,40 +19,15 @@ void deleteSocket() {
 }
 
 
-void collectorExecutor() {
 
-    // cancello il socket file se esiste
-    deleteSocket();
-    // se qualcosa va storto ....
-    atexit(deleteSocket);
+void collectorExecutor(int sockfd) {
+
+
     node_t *head = NULL;
-    int sockfd;
-    int continueLoop = 1;
-    struct sockaddr_un server_addr;
     fd_set set, rdset;
+    int continueLoop = 1;
 
-    //Create socket
-    if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-        perror("Error creating socket");
-        exit(EXIT_FAILURE);
-    }
 
-    //Set server address
-    memset(&server_addr, 0, sizeof(server_addr)); //clear struct
-    server_addr.sun_family = AF_UNIX; //set family
-    strcpy(server_addr.sun_path, SOCK_PATH); //set path
-
-    //bind socket
-    if (bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
-        perror("Error binding socket");
-        exit(EXIT_FAILURE);
-    }
-
-    //listen
-    if (listen(sockfd, 1) == -1) {
-        perror("Error listening");
-        exit(EXIT_FAILURE);
-    }
 
     //accept
     int clientfd;
@@ -66,7 +41,7 @@ void collectorExecutor() {
 
     int count = 0;
     while (continueLoop) {
-        if(count == 5)continueLoop = 0;
+        if(count == 4)continueLoop = 0;
 
         rdset = set;
         if (select(clientfd + 1, &rdset, NULL, NULL, NULL) == -1) {
@@ -100,28 +75,16 @@ void collectorExecutor() {
                 exit(EXIT_FAILURE);
             }
             buffer[pathSize] = '\0';
-            //printf("Path: %s\n", buffer);
             push(&head, buffer, sumSent);
             free(buffer);
         }
         count++;
     }
-
-    //close socket
-    if(close(sockfd) == -1){
-        perror("Error closing socket\n");
-        exit(EXIT_FAILURE);
-    }
-
     //print queue
     printQueue(head);
 
     //free queue
     freeQueue(&head);
-
-    //delete socket at exit
-    deleteSocket();
-    atexit(deleteSocket);
 
 
 }

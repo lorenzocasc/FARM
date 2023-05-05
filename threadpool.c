@@ -12,23 +12,6 @@
 #include "headers/threadpool.h"
 #include "headers/utils.h"
 
-static inline int writen(long fd, void *buf, size_t size) {
-    size_t left = size;
-    int r;
-    char *bufptr = (char*)buf;
-    while(left>0) {
-        if ((r=write((int)fd ,bufptr,left)) == -1) {
-            if (errno == EINTR) continue;
-            return -1;
-        }
-        if (r == 0) return 0;
-        left    -= r;
-        bufptr  += r;
-    }
-    return 1;
-}
-
-
 
 /**
  * @function void *threadpool_thread(void *threadpool)
@@ -64,15 +47,18 @@ static void *workerpool_thread(void *threadpool) {
         // nuovo task
         task.fun = pool->pending_queue[pool->head].fun;
         task.arg = pool->pending_queue[pool->head].arg;
+
+
         int path_len = strlen(task.arg);
-        char* tempPath = malloc(sizeof(char) * path_len + 1);
+        char *tempPath = malloc(sizeof(char) * path_len + 1);
         strncpy(tempPath, task.arg, path_len);
         tempPath[path_len] = '\0';
+
         pool->head++;
         pool->count--;
         pool->head = (pool->head == abs(pool->queue_size)) ? 0 : pool->head;
-
         pool->taskonthefly++;
+
         UNLOCK_RETURN(&(pool->lock), NULL);
 
         long p = (*(task.fun))(task.arg);
@@ -80,19 +66,19 @@ static void *workerpool_thread(void *threadpool) {
         LOCK_RETURN(&(pool->lock), NULL);
 
         //write p sulla socket
-        if(write(pool->socket_fd, &p, sizeof(long)) == -1){
+        if (write(pool->socket_fd, &p, sizeof(long)) == -1) {
             perror("write sum");
             free(tempPath);
             exit(EXIT_FAILURE);
         }
         //write path lenght sulla socket
-        if(write(pool->socket_fd, &path_len, sizeof(int)) == -1){
+        if (write(pool->socket_fd, &path_len, sizeof(int)) == -1) {
             perror("write path_len");
             free(tempPath);
             exit(EXIT_FAILURE);
         }
         //write path sulla socket
-        if(write(pool->socket_fd, tempPath, path_len) == -1){
+        if (write(pool->socket_fd, tempPath, path_len) == -1) {
             perror("write path");
             free(tempPath);
             exit(EXIT_FAILURE);

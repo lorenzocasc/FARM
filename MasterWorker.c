@@ -99,10 +99,6 @@ void *executeMasterWorker(int argc, char* argv[]) {
     close(socket_fd);
     //free memory
     free(path);
-
-
-    //printf("threadpool->queue_size: %d\n", threadpool->queue_size);
-    //printf("threadpool->num_threads: %d\n", threadpool->numthreads);
     return NULL;
 }
 
