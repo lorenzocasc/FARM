@@ -14,6 +14,7 @@
 #include "headers/MasterWorker.h"
 #include "headers/input_parser.h"
 #include <getopt.h>
+#include <unistd.h>
 
 #define maxPath 255
 
@@ -220,11 +221,9 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
                 optind++;
                 continue;
             } else {
-
                 char *pis = malloc(strlen(input[optind]) + 1);
                 strcpy(pis, input[optind]);
                 pis[strlen(input[optind])] = '\0';
-                printf("File path: %s\n", pis);
                 int x = addToThreadPool(pool, (void *) value, pis);
                 if (x == -1) {
                     printf("Error: Error while inserting the task \n");

@@ -61,6 +61,7 @@ static void *workerpool_thread(void *threadpool) {
 
         UNLOCK_RETURN(&(pool->lock), NULL);
 
+        if(pool->delayTp > 0) sleep(pool->delayTp/1000);
         long p = (*(task.fun))(task.arg);
 
         LOCK_RETURN(&(pool->lock), NULL);
@@ -133,7 +134,7 @@ threadpool_t *createThreadPool(long numthreads, long pending_size, long delay, i
         free(pool);
         return NULL;
     }
-    pool->pending_queue = (taskfun_t *) malloc(sizeof(taskfun_t) * abs(pool->queue_size));
+    pool->pending_queue = (taskfun_t *) malloc(sizeof(taskfun_t) * abs((int)pool->queue_size));
     if (pool->pending_queue == NULL) {
         free(pool->threads);
         free(pool);

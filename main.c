@@ -18,6 +18,7 @@
 
 int main(int argc, char *argv[]) {
 
+
     //Check if the number of arguments is correct
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <-n value> <-q value> <-d value> <-t value> <file-list>\n", argv[0]);
@@ -56,24 +57,18 @@ int main(int argc, char *argv[]) {
     }
 
 
-
     pid_t pid = fork();
-    if(pid == -1){
+    if (pid == -1) { //error
         perror("fork");
         exit(EXIT_FAILURE);
     }
-    if(pid == 0){
+    if (pid == 0) { //child
         collectorExecutor(sockfd);
         close(sockfd);
     }
-    if(pid > 0){
+    if (pid > 0) { //parent
         executeMasterWorker(argc, argv);
     }
-
-
-
-
-
 
 
 }

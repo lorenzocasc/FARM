@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/un.h>
+#include <signal.h>
 
 #define SOCK_PATH "./farm.sck"
 
@@ -46,10 +47,76 @@ long value(char *string) {
     return sum;
 }
 
+static void handleSIGUSR1(int signal) {
+    printf("Received signal %d\n", signal);
+    exit(EXIT_SUCCESS);
+}
+static void handleHIQTU(int signal) {
+    printf("Received signal %d\n", signal);
+    exit(EXIT_SUCCESS);
+}
+
+void signalHandler(sigset_t *set) {
+
+    //Set signal handler
+    struct sigaction sa; //signal action
+    sigfillset(set); //set all signals
+
+    if(pthread_sigmask(SIG_SETMASK, set, NULL) != 0){
+        perror("Error pthread_sigmask");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&sa, 0, sizeof(sa)); //set sa to 0
+    sa.sa_handler = handleSIGUSR1;
+    if(sigaction(SIGUSR1, &sa, NULL) == -1){ //SIGUSR1
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    sa.sa_handler = handleHIQTU;
+    // handling SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1
+    if (sigaction(SIGHUP, &sa, NULL) == -1) { //SIGHUP
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGINT, &sa, NULL) == -1) { //SIGINT
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGQUIT, &sa, NULL) == -1) { //SIGQUIT
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGTERM, &sa, NULL) == -1) { //SIGTERM
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    // handling SIGPIPE
+    sa.sa_handler = SIG_IGN;
+    if (sigaction(SIGPIPE, &sa, NULL) == -1) {
+        perror("Error sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    sigemptyset(set);
+    if(pthread_sigmask(SIG_SETMASK, set, NULL) != 0){
+        perror("Error pthread_sigmask");
+        exit(EXIT_FAILURE);
+    }
+
+
+}
+
 
 void *executeMasterWorker(int argc, char *argv[]) {
     struct sockaddr_un server_addr;
     int socket_fd;
+
+    sigset_t set;
+    signalHandler(&set);
+
 
     if ((socket_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         perror("error creating socket in masterworker");

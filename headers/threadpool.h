@@ -34,13 +34,13 @@ typedef struct threadpool_t {
     pthread_cond_t   cond;    // usata per notificare un worker thread
     pthread_cond_t  queue_cond; //usata per notificare che la queue non è piena
     pthread_t      * threads; // array di worker id
-    int numthreads;           // numero di thread (size dell'array threads)
+    long numthreads;           // numero di thread (size dell'array threads)
     taskfun_t *pending_queue; // coda interna per task pendenti
-    int queue_size;           // massima size della coda, puo' essere anche -1 ad indicare che non si vogliono gestire task pendenti
+    long queue_size;           // massima size della coda, puo' essere anche -1 ad indicare che non si vogliono gestire task pendenti
     int taskonthefly;         // numero di task attualmente in esecuzione
     int head, tail;           // riferimenti della coda
     int socket_fd;            // socket del server
-    int delayTp;                // delay tra l'invio di due messaggi
+    long delayTp;                // delay tra l'invio di due messaggi
     int count;                // numero di task nella coda dei task pendenti
     int exiting;              // se > 0 e' iniziato il protocollo di uscita, se 1 il thread aspetta che non ci siano piu' lavori in coda
 } threadpool_t;
