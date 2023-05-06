@@ -15,10 +15,11 @@
 
 #define SOCK_PATH "./farm.sck"
 
+int pipe_fd;
 static long nThreads = 4;
 static long queueSize = 8;
 static long delay = 0;
-
+threadpool_t *threadpool;
 
 long value(char *string) {
     long sum = 0;
@@ -53,6 +54,11 @@ static void handleSIGUSR1(int signal) {
 }
 static void handleHIQTU(int signal) {
     printf("Received signal %d\n", signal);
+    printf("Destroying threadpool in handle\n");
+    destroyThreadPool(threadpool,0);
+    printf("Threadpool destroyed in handle\n");
+    char message = 'e';
+    write(pipe_fd,&message,sizeof(char));
     exit(EXIT_SUCCESS);
 }
 
@@ -110,9 +116,10 @@ void signalHandler(sigset_t *set) {
 }
 
 
-void *executeMasterWorker(int argc, char *argv[]) {
+void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     struct sockaddr_un server_addr;
     int socket_fd;
+    pipe_fd = pipefd;
 
     sigset_t set;
     signalHandler(&set);
@@ -147,7 +154,7 @@ void *executeMasterWorker(int argc, char *argv[]) {
     printf("--------------------\n");
 
 
-    //connect to socket
+    //connect to socket of the collector, if it fails exit
     if (connect(socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
         perror("error connecting to socket in masterworker");
         exit(EXIT_FAILURE);
@@ -155,16 +162,18 @@ void *executeMasterWorker(int argc, char *argv[]) {
 
 
     //create threadpool
-    threadpool_t *threadpool = createThreadPool(nThreads, queueSize, delay, socket_fd);
+    threadpool = createThreadPool(nThreads, queueSize, delay, socket_fd);
 
     //get files from the directory or the queue of files
     getArgs(argc, argv, threadpool, &queue, path);
 
-
     //Wait for threads to finish
     destroyThreadPool(threadpool, 0);
 
-    close(socket_fd);
+    char message = 'e'; //All args processed ending message
+    write(pipe_fd,&message,sizeof(char)); //send the message to the collector
+
+    close(socket_fd); //close socket
     //free memory
     free(path);
     return NULL;

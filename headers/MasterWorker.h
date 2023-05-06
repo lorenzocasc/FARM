@@ -11,7 +11,7 @@
 #include <signal.h>
 
 
-void * executeMasterWorker(int argc, char* argv[]);
+void * executeMasterWorker(int argc, char* argv[], int pipefd);
 long value(char *string);
 void signalHandler(sigset_t *set);
 static void handleSIGUSR1(int signal);

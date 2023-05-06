@@ -234,7 +234,5 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
             }
         }
     }
-
-
 }
 

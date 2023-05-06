@@ -7,7 +7,6 @@
 #include "headers/input_parser.h"
 #include "headers/MasterWorker.h"
 #include "headers/Collector.h"
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -15,8 +14,13 @@
 #define SOCK_PATH "./farm.sck"
 
 
-
 int main(int argc, char *argv[]) {
+
+    int pipefd[2];
+    if(pipe(pipefd) == -1){
+        perror("Error pipe");
+        exit(EXIT_FAILURE);
+    }
 
 
     //Check if the number of arguments is correct
@@ -63,11 +67,15 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     if (pid == 0) { //child
-        collectorExecutor(sockfd);
-        close(sockfd);
+        close(pipefd[1]); //close write
+        collectorExecutor(sockfd, pipefd[0]); //execute collector code
+        close(sockfd); //close socket
+        close(pipefd[0]); //close read
     }
     if (pid > 0) { //parent
-        executeMasterWorker(argc, argv);
+        close(pipefd[0]); //close read
+        executeMasterWorker(argc, argv, pipefd[1]); //execute master-worker code
+        close(pipefd[1]); //close write
     }
 
 

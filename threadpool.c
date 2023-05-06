@@ -70,18 +70,21 @@ static void *workerpool_thread(void *threadpool) {
         if (write(pool->socket_fd, &p, sizeof(long)) == -1) {
             perror("write sum");
             free(tempPath);
+            free(task.arg);
             exit(EXIT_FAILURE);
         }
         //write path lenght sulla socket
         if (write(pool->socket_fd, &path_len, sizeof(int)) == -1) {
             perror("write path_len");
             free(tempPath);
+            free(task.arg);
             exit(EXIT_FAILURE);
         }
         //write path sulla socket
         if (write(pool->socket_fd, tempPath, path_len) == -1) {
             perror("write path");
             free(tempPath);
+            free(task.arg);
             exit(EXIT_FAILURE);
         }
 
