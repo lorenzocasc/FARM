@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "headers/input_parser.h"
-#include "headers/MasterWorker.h"
-#include "headers/Collector.h"
+#include "../headers/input_parser.h"
+#include "../headers/MasterWorker.h"
+#include "../headers/Collector.h"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>

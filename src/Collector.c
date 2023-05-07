@@ -2,15 +2,15 @@
 // Created by Lorenzo Cascone on 04/05/23.
 //
 
-#include "headers/Collector.h"
+#include "../headers/Collector.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "headers/input_parser.h"
+#include "../headers/input_parser.h"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include "headers/queue.h"
+#include "../headers/queue.h"
 
 #define SOCK_PATH "./farm.sck"
 
@@ -76,9 +76,7 @@ void collectorExecutor(int sockfd, int pipefd) {
     FD_SET(clientfd, &set); //add clientfd to set
     FD_SET(pipefd, &set); //add pipefd to set
 
-    int count = 0;
     while (continueLoop) {
-
         rdset = set;
         if (select(clientfd + 1, &rdset, NULL, NULL, NULL) == -1) {
             perror("Error select");
@@ -111,9 +109,7 @@ void collectorExecutor(int sockfd, int pipefd) {
                 exit(EXIT_FAILURE);
             }
             buffer[pathSize] = '\0';
-            printf("Path: %s --- sum [%ld]\n", buffer, sumSent);
-            push(&head, buffer, sumSent);
-            free(buffer);
+            pushOrdered(&head, buffer, sumSent);
         }
 
         if(FD_ISSET(pipefd, &rdset)){
@@ -123,9 +119,7 @@ void collectorExecutor(int sockfd, int pipefd) {
             continueLoop = 0;
             break;
         }
-        count++;
     }
-
 
 
     //print queue
@@ -133,6 +127,5 @@ void collectorExecutor(int sockfd, int pipefd) {
 
     //free queue
     freeQueue(&head);
-
 
 }

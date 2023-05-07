@@ -2,10 +2,10 @@
 // Created by Lorenzo Cascone on 02/05/23.
 //
 #include <sys/socket.h>
-#include "headers/MasterWorker.h"
-#include "headers/input_parser.h"
-#include "headers/threadpool.h"
-#include "headers/utils.h"
+#include "../headers/MasterWorker.h"
+#include "../headers/input_parser.h"
+#include "../headers/threadpool.h"
+#include "../headers/utils.h"
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -144,6 +144,7 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
         exit(EXIT_FAILURE);
 
     }
+
 
     printf("--------------------\n");
     printf("nThreads: %ld\n", nThreads);

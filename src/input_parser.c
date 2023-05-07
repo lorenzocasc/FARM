@@ -10,9 +10,9 @@
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <dirent.h>
-#include "headers/threadpool.h"
-#include "headers/MasterWorker.h"
-#include "headers/input_parser.h"
+#include "../headers/threadpool.h"
+#include "../headers/MasterWorker.h"
+#include "../headers/input_parser.h"
 #include <getopt.h>
 #include <unistd.h>
 

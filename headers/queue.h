@@ -16,6 +16,5 @@ typedef struct node {
 void push(node_t **head, char *string,long sum);
 void printQueue(node_t *head);
 void freeQueue(node_t **head);
-void insert(node_t **head, char *string,long sum);
-
+void pushOrdered(node_t **head, char *string,long sum);
 #endif //SOLPROJECT_QUEUE_H
