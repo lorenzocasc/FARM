@@ -21,8 +21,12 @@ clean :
 	-rm -f -r $(directory)/testdir
 
 #to test the program
+#test :$(obj) $(EXE) $(objgenerafile)
+#	cd src; ./script_test.sh
+
 test :$(obj) $(EXE) $(objgenerafile)
 	cd src; ./test.sh
+
 
 #to compile the program
 compila : $(obj) $(EXE) $(objgenerafile);

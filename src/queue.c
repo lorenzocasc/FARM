@@ -70,11 +70,13 @@ void pushOrdered(node_t **head, char *string, long sum) {
 //print queue
 void printQueue(node_t *head) {
     node_t *current = head;
+    //int element = 1;
+    printf("sto stampando\n");
     while (current != NULL) {
         //printf("------------------\n");
         //printf("Element %d : ", c);
         //printf("Sum-> %ld \n", current->sum);
-        printf("%ld %s\n", current->sum, current->path);
+        printf("%ld %s\n",current->sum, current->path);
         //printf("Path-> %s ", current->path);
         //printf("------------------\n");
         current = current->next;

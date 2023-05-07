@@ -62,6 +62,7 @@ else
     echo "test1 passed"
 fi
 
+
 # esecuzione con 8 thread e coda lunga 16
 ./farm -d testdir -n 8 -q 16 file* | grep "file*" | awk '{print $1,$2}' | diff - expected.txt
 if [[ $? != 0 ]]; then

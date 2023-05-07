@@ -59,12 +59,12 @@ static void *workerpool_thread(void *threadpool) {
         pool->head = (pool->head == abs(pool->queue_size)) ? 0 : pool->head;
         pool->taskonthefly++;
 
-        UNLOCK_RETURN(&(pool->lock), NULL);
+        //UNLOCK_RETURN(&(pool->lock), NULL);
 
         if(pool->delayTp > 0) sleep(pool->delayTp/1000);
         long p = (*(task.fun))(task.arg);
 
-        LOCK_RETURN(&(pool->lock), NULL);
+        //LOCK_RETURN(&(pool->lock), NULL);
 
         //write p sulla socket
         if (write(pool->socket_fd, &p, sizeof(long)) == -1) {

@@ -12,6 +12,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define SOCK_PATH "./farm.sck"
 
@@ -60,7 +61,7 @@ void collectorExecutor(int sockfd, int pipefd) {
 
     node_t *head = NULL;
     fd_set set, rdset;
-
+    int maxfd;
     sigset_t signalSet;
     sigHandler(&signalSet);
 
@@ -77,12 +78,19 @@ void collectorExecutor(int sockfd, int pipefd) {
     FD_SET(clientfd, &set); //add clientfd to set
     FD_SET(pipefd, &set); //add pipefd to set
 
+    maxfd = clientfd > pipefd ? clientfd : pipefd;
+    int c = 0;
     while (continueLoop) {
+
         rdset = set;
-        if (select(clientfd + 1, &rdset, NULL, NULL, NULL) == -1) {
+
+        if (select(maxfd + 1, &rdset, NULL, NULL, NULL) == -1) {
             perror("Error select");
             exit(EXIT_FAILURE);
         }
+
+        printf("[%d] ",c);
+        c++;
 
         if (FD_ISSET(clientfd, &rdset)) {
             long sumSent = 0;
@@ -110,14 +118,18 @@ void collectorExecutor(int sockfd, int pipefd) {
                 exit(EXIT_FAILURE);
             }
             buffer[pathSize] = '\0';
-            //printf("Path: %s\n", buffer);
+            printf("[collector] Received path: %s\n", buffer);
             pushOrdered(&head, buffer, sumSent);
         }
 
         if(FD_ISSET(pipefd, &rdset)){
             char buf;
-            read(pipefd, &buf, sizeof(char));
-            //printf("[collector] Received pipe message: %c\n",buf);
+            long x = read(pipefd, &buf, sizeof(char));
+            if(x == -1){
+                perror("Error reading from pipe");
+                exit(EXIT_FAILURE);
+            }
+            printf("[collector] Received pipe message: %c\n",buf);
             continueLoop = 0;
             break;
         }
@@ -126,7 +138,6 @@ void collectorExecutor(int sockfd, int pipefd) {
 
     //print queue
     printQueue(head);
-
     //free queue
     freeQueue(&head);
 

@@ -14,6 +14,6 @@
 void * executeMasterWorker(int argc, char* argv[], int pipefd);
 long value(char *string);
 void signalHandler(sigset_t *set);
-static void handleSIGUSR1(int signal);
-static void handleHIQTU(int signal);
+void handleSIGUSR1(int signal);
+void handleHIQTU(int signal);
 #endif //SOLPROJECT_MASTERWORKER_H

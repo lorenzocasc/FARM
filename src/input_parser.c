@@ -212,7 +212,7 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
     if (*queue == 1) {
         while (optind < argc) {
             if (isValid(input[optind]) <= 0) {
-                printf("Error: invalid file path\n");
+                //printf("Error: invalid file path %s\n ",input[optind] );
                 optind++;
                 continue;
             } else {

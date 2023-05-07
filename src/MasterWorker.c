@@ -48,11 +48,11 @@ long value(char *string) {
     return sum;
 }
 
-static void handleSIGUSR1(int signal) {
+void handleSIGUSR1(int signal) {
     printf("Received signal %d\n", signal);
     exit(EXIT_SUCCESS);
 }
-static void handleHIQTU(int signal) {
+void handleHIQTU(int signal) {
     printf("Received signal %d\n", signal);
     printf("Destroying threadpool in handle\n");
     destroyThreadPool(threadpool,0);
@@ -170,8 +170,17 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     //Wait for threads to finish
     destroyThreadPool(threadpool, 0);
     //printf("Threadpool destroyed\n");
-    char message = 'e'; //All args processed ending message
-    write(pipe_fd,&message,sizeof(char)); //send the message to the collector
+
+    //send message "quit" to collector
+
+    char message = 'e';
+    if(write(pipe_fd,&message,sizeof(char)) == -1){  //send the message to the collector
+        perror("error writing in the pipe\n");
+        exit(EXIT_FAILURE);
+    }else{
+        printf("Message sent\n");
+    }
+
 
     //*****************
     //close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector
