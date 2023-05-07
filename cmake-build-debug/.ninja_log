@@ -79,3 +79,5 @@
 0	61	1683495807199096699	CMakeFiles/solProject.dir/src/MasterWorker.c.o	908f11c1aa10d78e
 1	64	1683495807199096699	CMakeFiles/solProject.dir/src/Collector.c.o	8ba5fe690a3b032e
 64	88	1683495807223097639	solProject	57ee4490ea350d8e
+1	51	1683496152192576256	CMakeFiles/solProject.dir/src/MasterWorker.c.o	908f11c1aa10d78e
+51	74	1683496152216577191	solProject	57ee4490ea350d8e

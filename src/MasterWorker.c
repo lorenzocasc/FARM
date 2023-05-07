@@ -181,9 +181,9 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
         printf("Message sent\n");
     }
 
-
+    close(pipe_fd);   //close pipe
     //*****************
-    //close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector
+    close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector a volte
     //****************
 
     //free memory
