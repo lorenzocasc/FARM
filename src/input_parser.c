@@ -12,9 +12,7 @@
 #include <dirent.h>
 #include "../headers/threadpool.h"
 #include "../headers/MasterWorker.h"
-#include "../headers/input_parser.h"
 #include <getopt.h>
-#include <unistd.h>
 
 #define maxPath 255
 
@@ -157,7 +155,6 @@ int isNumber(const char *s, long *n) {
 
 void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, char **path, long *delay, int *queue) {
     int opt = 0;
-
     while ((opt = getopt(argc, input, "n:q:d:t:")) != -1) {
         switch (opt) {
             case 'n':
@@ -204,8 +201,6 @@ void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, cha
 
 
 void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char *path) {
-    int opt;
-    //optind = 1;
 
     if (path != NULL) {
         if (strlen(path) != 0) {

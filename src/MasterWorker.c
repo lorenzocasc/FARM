@@ -133,7 +133,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     server_addr.sun_family = AF_UNIX;
     strcpy(server_addr.sun_path, SOCK_PATH);
 
-    int fd_c;
     char *path = NULL;
     int queue = 0; //flag that assumes 1 only if a queue of files is passed
 
@@ -145,7 +144,7 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
     }
 
-
+    /*
     printf("--------------------\n");
     printf("nThreads: %ld\n", nThreads);
     printf("queueSize: %ld\n", queueSize);
@@ -153,7 +152,7 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     printf("delay: %ld\n", delay);
     printf("queue: %d\n", queue);
     printf("--------------------\n");
-
+    */
 
     //connect to socket of the collector, if it fails exit
     if (connect(socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
@@ -170,11 +169,14 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
     //Wait for threads to finish
     destroyThreadPool(threadpool, 0);
-
+    //printf("Threadpool destroyed\n");
     char message = 'e'; //All args processed ending message
     write(pipe_fd,&message,sizeof(char)); //send the message to the collector
 
-    close(socket_fd); //close socket
+    //*****************
+    //close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector
+    //****************
+
     //free memory
     free(path);
     return NULL;

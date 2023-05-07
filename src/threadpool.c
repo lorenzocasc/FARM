@@ -94,7 +94,7 @@ static void *workerpool_thread(void *threadpool) {
     }
     UNLOCK_RETURN(&(pool->lock), NULL);
 
-    fprintf(stderr, "thread %d exiting\n", myid);
+    //fprintf(stderr, "thread %d exiting\n", myid);
     return NULL;
 }
 

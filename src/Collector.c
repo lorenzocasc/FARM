@@ -6,11 +6,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../headers/input_parser.h"
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <unistd.h>
 #include "../headers/queue.h"
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define SOCK_PATH "./farm.sck"
 
@@ -109,13 +110,14 @@ void collectorExecutor(int sockfd, int pipefd) {
                 exit(EXIT_FAILURE);
             }
             buffer[pathSize] = '\0';
+            //printf("Path: %s\n", buffer);
             pushOrdered(&head, buffer, sumSent);
         }
 
         if(FD_ISSET(pipefd, &rdset)){
             char buf;
             read(pipefd, &buf, sizeof(char));
-            printf("[collector] Received pipe message: %c\n",buf);
+            //printf("[collector] Received pipe message: %c\n",buf);
             continueLoop = 0;
             break;
         }
