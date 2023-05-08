@@ -12,7 +12,6 @@
 #include "../headers/threadpool.h"
 #include "../headers/utils.h"
 
-
 /**
  * @function void *threadpool_thread(void *threadpool)
  * @brief funzione eseguita dal thread worker che appartiene al pool
@@ -59,35 +58,51 @@ static void *workerpool_thread(void *threadpool) {
         pool->head = (pool->head == abs(pool->queue_size)) ? 0 : pool->head;
         pool->taskonthefly++;
 
-        //UNLOCK_RETURN(&(pool->lock), NULL);
+        UNLOCK_RETURN(&(pool->lock), NULL);
 
         if(pool->delayTp > 0) sleep(pool->delayTp/1000);
         long p = (*(task.fun))(task.arg);
 
-        //LOCK_RETURN(&(pool->lock), NULL);
+        LOCK_RETURN(&(pool->lock), NULL);
+
 
         //write p sulla socket
-        if (write(pool->socket_fd, &p, sizeof(long)) == -1) {
+        int ret, ret1, ret2;
+        if ((ret = write(pool->socket_fd, &p, sizeof(long))) == -1) {
             perror("write sum");
             free(tempPath);
             free(task.arg);
             exit(EXIT_FAILURE);
         }
+
         //write path lenght sulla socket
-        if (write(pool->socket_fd, &path_len, sizeof(int)) == -1) {
+        if ((ret1 = write(pool->socket_fd, &path_len, sizeof(int))) == -1) {
             perror("write path_len");
             free(tempPath);
             free(task.arg);
             exit(EXIT_FAILURE);
         }
         //write path sulla socket
-        if (write(pool->socket_fd, tempPath, path_len) == -1) {
+        if ((ret2 = write(pool->socket_fd, tempPath, path_len)) == -1) {
             perror("write path");
             free(tempPath);
             free(task.arg);
             exit(EXIT_FAILURE);
         }
 
+        printf("ret: %d, ret1: %d, ret2: %d\n", ret, ret1, ret2);
+        /*
+        char check;
+        if(read(pool->socket_fd, &check, sizeof(char)) == -1){
+            perror("read worker error");
+            free(tempPath);
+            free(task.arg);
+            exit(EXIT_FAILURE);
+        }
+         */
+
+
+        //printf("%d wrote path: %s -- answer: %c \n",myid, tempPath, check);
         free(tempPath);
         pool->taskonthefly--;
         pthread_cond_signal(&(pool->queue_cond));

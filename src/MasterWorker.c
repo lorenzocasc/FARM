@@ -49,16 +49,32 @@ long value(char *string) {
 }
 
 void handleSIGUSR1(int signal) {
-    printf("Received signal %d\n", signal);
+    destroyThreadPool(threadpool,1);
+    char message[] = "print";
+    int len = strlen(message);
+    if(write(pipe_fd, &len, sizeof(int)) == -1){
+        perror("error writing in the pipe\n");
+        exit(EXIT_FAILURE);
+    }
+    if (write(pipe_fd, message, len) == -1) {
+        perror("error writing in the socket");
+        exit(EXIT_FAILURE);
+    }
+
     exit(EXIT_SUCCESS);
 }
 void handleHIQTU(int signal) {
-    printf("Received signal %d\n", signal);
-    printf("Destroying threadpool in handle\n");
     destroyThreadPool(threadpool,0);
-    printf("Threadpool destroyed in handle\n");
-    char message = 'e';
-    write(pipe_fd,&message,sizeof(char));
+    char message[] = "quit";
+    int len = strlen(message);
+    if(write(pipe_fd, &len, sizeof(int)) == -1){
+        perror("error writing in the pipe\n");
+        exit(EXIT_FAILURE);
+    }
+    if (write(pipe_fd, message, len) == -1) {
+        perror("error writing in the socket");
+        exit(EXIT_FAILURE);
+    }
     exit(EXIT_SUCCESS);
 }
 
@@ -172,7 +188,18 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     //printf("Threadpool destroyed\n");
 
     //send message "quit" to collector
+    char message[] = "quit";
+    int len = strlen(message);
+    if(write(pipefd, &len, sizeof(int)) == -1){
+        perror("error writing in the pipe\n");
+        exit(EXIT_FAILURE);
+    }
+    if (write(pipefd, message, len) == -1) {
+        perror("error writing in the socket");
+        exit(EXIT_FAILURE);
+    }
 
+    /*
     char message = 'e';
     if(write(pipe_fd,&message,sizeof(char)) == -1){  //send the message to the collector
         perror("error writing in the pipe\n");
@@ -180,8 +207,8 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     }else{
         printf("Message sent\n");
     }
+     */
 
-    close(pipe_fd);   //close pipe
     //*****************
     close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector a volte
     //****************

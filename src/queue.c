@@ -71,7 +71,6 @@ void pushOrdered(node_t **head, char *string, long sum) {
 void printQueue(node_t *head) {
     node_t *current = head;
     //int element = 1;
-    printf("sto stampando\n");
     while (current != NULL) {
         //printf("------------------\n");
         //printf("Element %d : ", c);
