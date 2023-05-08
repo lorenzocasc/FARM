@@ -115,7 +115,6 @@ void collectorExecutor(int sockfd, int pipefd) {
             exit(EXIT_FAILURE);
         }
         //if(d == 0 && continueLoop == 0)break;
-
         //printf("%d\n", d);
         //if (d == 2)break;
         for (int c = 0; c < maxfd + 1; c++) {
@@ -128,14 +127,20 @@ void collectorExecutor(int sockfd, int pipefd) {
                         perror("Error reading sumSent\n");
                         exit(EXIT_FAILURE);
                     }
-                    if (check == 0)continue;
+                    if (check == 0){
+                        continueLoop = 0;
+                        continue;
+                    }
 
                     //printf("Sum sent: %ld\n", sumSent);
                     if ((check1 = read(clientfd, &pathSize, sizeof(int))) == -1) {
                         perror("Error reading size of path\n");
                         exit(EXIT_FAILURE);
                     }
-                    if (check1 == 0)continue;
+                    if (check1 == 0){
+                        continueLoop = 0;
+                        continue;
+                    }
 
                     //printf("Path size: %d\n", pathSize);
                     char *buffer = malloc(sizeof(char) * pathSize + 1);
@@ -149,7 +154,7 @@ void collectorExecutor(int sockfd, int pipefd) {
                     }
                     buffer[pathSize] = '\0';
                     pushOrdered(&head, buffer, sumSent);
-                    printf("check: %d, check1: %d, check2: %d\n", check, check1, check2);
+                    //printf("check: %d, check1: %d, check2: %d\n", check, check1, check2);
                     c--;
                     continue;
                     //send receipt message
@@ -187,7 +192,8 @@ void collectorExecutor(int sockfd, int pipefd) {
                             continueLoop = 0;
                             printQueue(head);
                             free(buffer);
-                            break;
+                            freeQueue(&head);
+                            exit(EXIT_SUCCESS);
                         }
                         free(buffer);
 

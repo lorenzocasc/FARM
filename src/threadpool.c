@@ -90,7 +90,7 @@ static void *workerpool_thread(void *threadpool) {
             exit(EXIT_FAILURE);
         }
 
-        printf("ret: %d, ret1: %d, ret2: %d\n", ret, ret1, ret2);
+        //printf("ret: %d, ret1: %d, ret2: %d\n", ret, ret1, ret2);
         /*
         char check;
         if(read(pool->socket_fd, &check, sizeof(char)) == -1){
