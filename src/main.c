@@ -78,5 +78,5 @@ int main(int argc, char *argv[]) {
         close(pipefd[1]); //close write
     }
 
-
+    exit(EXIT_SUCCESS);
 }

@@ -199,15 +199,8 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
         exit(EXIT_FAILURE);
     }
 
-    /*
-    char message = 'e';
-    if(write(pipe_fd,&message,sizeof(char)) == -1){  //send the message to the collector
-        perror("error writing in the pipe\n");
-        exit(EXIT_FAILURE);
-    }else{
-        printf("Message sent\n");
-    }
-     */
+
+
 
     //*****************
     close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector a volte
