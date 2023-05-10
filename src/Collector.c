@@ -31,6 +31,7 @@ void deleteSocket() {
 }
 
 //create thread that waits for messages from a pipe
+
 void *threadPipe(void *arg) {
 
     int pipe = *(int *) arg;
@@ -79,6 +80,7 @@ void *threadPipe(void *arg) {
 }
 
 
+
 void sigHandler(sigset_t *set) {
 
     struct sigaction sa;
@@ -120,9 +122,16 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
     sigHandler(&signalSet);
 
     //create thread that waits for messages from a pipe
+
     pthread_t thread;
     if (pthread_create(&thread, NULL, threadPipe, &pipeKill) != 0) {
         perror("Error pthread_create");
+        exit(EXIT_FAILURE);
+    }
+
+    // detach thread
+    if (pthread_detach(thread) != 0) {
+        perror("Error detaching thread");
         exit(EXIT_FAILURE);
     }
 
@@ -222,6 +231,7 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                     }
                     buffer[pathSize] = '\0';
 
+
                     if (pthread_mutex_lock(&lock) != 0) {
                         perror("Error locking mutex\n");
                         exit(EXIT_FAILURE);
@@ -233,6 +243,7 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                         perror("Error unlocking mutex\n");
                         exit(EXIT_FAILURE);
                     }
+
 
                     c--;
                     continue;
@@ -249,14 +260,6 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
     printQueue(head);
     //free queue
     freeQueue(&head);
-
-
-
-    //wait for thread
-    if (pthread_join(thread, NULL) != 0) {
-        perror("Error pthread_join");
-        exit(EXIT_FAILURE);
-    }
 
 
     return;
