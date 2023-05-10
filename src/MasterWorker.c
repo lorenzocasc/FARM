@@ -61,6 +61,7 @@ void handleSIGUSR1(int signal) {
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
+
     //exit(EXIT_SUCCESS);
 }
 void handleHIQTU(int signal) {
@@ -196,7 +197,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd, int pipeKill) {
 
     //free memory
     free(path);
-
     return NULL;
 }
 

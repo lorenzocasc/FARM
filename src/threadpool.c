@@ -61,6 +61,7 @@ static void *workerpool_thread(void *threadpool) {
 
         UNLOCK_RETURN(&(pool->lock), NULL);
         //if(pool->delayTp > 0) sleep(pool->delayTp/1000);
+
         long p = (*(task.fun))(task.arg);
 
         LOCK_RETURN(&(pool->lock), NULL);
@@ -92,6 +93,8 @@ static void *workerpool_thread(void *threadpool) {
             free(task.arg);
             exit(EXIT_FAILURE);
         }
+
+
 
 
         free(tempPath);
@@ -230,7 +233,6 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
         }
     }
 
-    //if(pool->delayTp > 0) sleep(pool->delayTp/1000);
     pool->pending_queue[pool->tail].fun = f;
     pool->pending_queue[pool->tail].arg = arg;
     pool->count++;

@@ -238,6 +238,7 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
 
                     c--;
                     continue;
+
                 }
 
 
@@ -261,4 +262,5 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
 
 
     return;
+
 }
