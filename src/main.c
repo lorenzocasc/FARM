@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
         collectorExecutor(sockfd, pipefd[0]); //execute collector code
         close(sockfd); //close socket
         close(pipefd[0]); //close read
+        exit(EXIT_SUCCESS);
     }
     if (pid > 0) { //parent
         close(pipefd[0]); //close read

@@ -60,7 +60,6 @@ void handleSIGUSR1(int signal) {
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
-
     //exit(EXIT_SUCCESS);
 }
 void handleHIQTU(int signal) {
@@ -205,7 +204,13 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
     //free memory
     free(path);
+
     return NULL;
 }
 
-
+//Devo 1) creare una nuova pipe per gestire solo il print
+    // 2) nel collector gestisco la read da questa nuova pipe con un thread
+    // 3) nel collector, devo impostare
+    //    un flag nuovo, messo a uno quando le check della read dal socket
+    // vanno a 1, cosi prima di uscire dal ciclo totale devo controllare
+    // se hanno finito di leggere dalla socket e se continueloop è 0, fine.

@@ -18,6 +18,7 @@
 #define SOCK_PATH "./farm.sck"
 
 int continueLoop = 1;
+int flagSocket = 1;
 
 void deleteSocket() {
     unlink(SOCK_PATH);
@@ -79,7 +80,7 @@ void collectorExecutor(int sockfd, int pipefd) {
     maxfd = clientfd > pipefd ? clientfd : pipefd;
 
 
-    while (continueLoop) {
+    while (continueLoop || flagSocket) {
 
 
         rdset = set;
@@ -140,6 +141,7 @@ void collectorExecutor(int sockfd, int pipefd) {
                         exit(EXIT_FAILURE);
                     }
                     if (check == 0) {
+                        flagSocket = 0;
                         continue;
                     }
 
@@ -167,9 +169,8 @@ void collectorExecutor(int sockfd, int pipefd) {
                     }
                     buffer[pathSize] = '\0';
                     pushOrdered(&head, buffer, sumSent);
-                    //c--;
+                    c--;
                     continue;
-
                 }
 
 
@@ -184,5 +185,4 @@ void collectorExecutor(int sockfd, int pipefd) {
     freeQueue(&head);
 
     return;
-
 }
