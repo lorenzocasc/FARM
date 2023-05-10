@@ -7,7 +7,7 @@
 #ifndef SOLPROJECT_COLLECTOR_H
 #define SOLPROJECT_COLLECTOR_H
 #include <signal.h>
-void collectorExecutor(int sockfd, int pipefd);
+void collectorExecutor(int sockfd, int pipefd, int pipeKill);
 void deleteSocket();
 void sigHandler(sigset_t *set);
 #endif //SOLPROJECT_COLLECTOR_H

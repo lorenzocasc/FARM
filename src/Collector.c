@@ -19,10 +19,65 @@
 
 int continueLoop = 1;
 int flagSocket = 1;
+node_t *head = NULL;
+
+
+//create lock
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 
 void deleteSocket() {
     unlink(SOCK_PATH);
 }
+
+//create thread that waits for messages from a pipe
+void *threadPipe(void *arg) {
+
+    int pipe = *(int *) arg;
+    int len;
+    long check;
+
+    while (continueLoop) {
+
+        if ((check = read(pipe, &len, sizeof(int))) == -1) {
+            perror("Error reading from pipe");
+            exit(EXIT_FAILURE);
+        }
+
+        if (check != 0) {
+            char *buffer = malloc(sizeof(char) * len + 1);
+            if (buffer == NULL) {
+                perror("Error allocating memory\n");
+                exit(EXIT_FAILURE);
+            }
+            if (read(pipe, buffer, len) == -1) {
+                perror("Error reading from pipe");
+                free(buffer);
+                exit(EXIT_FAILURE);
+            }
+            buffer[len] = '\0';
+            if (strcmp(buffer, "print") == 0) {
+
+                if (pthread_mutex_lock(&lock) != 0) {
+                    perror("Error pthread_mutex_lock");
+                    exit(EXIT_FAILURE);
+                }
+                printQueue(head);
+
+                if (pthread_mutex_unlock(&lock) != 0) {
+                    perror("Error pthread_mutex_unlock");
+                    exit(EXIT_FAILURE);
+                }
+
+            }
+
+        }
+
+    }
+    return NULL;
+
+}
+
 
 void sigHandler(sigset_t *set) {
 
@@ -57,13 +112,20 @@ void sigHandler(sigset_t *set) {
 }
 
 
-void collectorExecutor(int sockfd, int pipefd) {
+void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
 
-    node_t *head = NULL;
     fd_set set, rdset;
     int maxfd;
     sigset_t signalSet;
     sigHandler(&signalSet);
+
+    //create thread that waits for messages from a pipe
+    pthread_t thread;
+    if (pthread_create(&thread, NULL, threadPipe, &pipeKill) != 0) {
+        perror("Error pthread_create");
+        exit(EXIT_FAILURE);
+    }
+
 
 
     //accept
@@ -121,13 +183,6 @@ void collectorExecutor(int sockfd, int pipefd) {
                             free(buffer);
                             continue;
                         }
-                        if (strcmp(buffer, "print") == 0) {
-                            //continueLoop = 0;
-                            printQueue(head);
-                            free(buffer);
-                            //freeQueue(&head);
-                            //return;
-                        }
                     }
                 }
 
@@ -168,7 +223,19 @@ void collectorExecutor(int sockfd, int pipefd) {
                         continue;
                     }
                     buffer[pathSize] = '\0';
+
+                    if (pthread_mutex_lock(&lock) != 0) {
+                        perror("Error locking mutex\n");
+                        exit(EXIT_FAILURE);
+                    }
+
                     pushOrdered(&head, buffer, sumSent);
+
+                    if (pthread_mutex_unlock(&lock) != 0) {
+                        perror("Error unlocking mutex\n");
+                        exit(EXIT_FAILURE);
+                    }
+
                     c--;
                     continue;
                 }
@@ -183,6 +250,15 @@ void collectorExecutor(int sockfd, int pipefd) {
     printQueue(head);
     //free queue
     freeQueue(&head);
+
+
+
+    //wait for thread
+    if (pthread_join(thread, NULL) != 0) {
+        perror("Error pthread_join");
+        exit(EXIT_FAILURE);
+    }
+
 
     return;
 }

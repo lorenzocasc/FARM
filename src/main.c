@@ -22,6 +22,12 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    int pipeKill[2];
+    if(pipe(pipeKill) == -1){
+        perror("Error pipe");
+        exit(EXIT_FAILURE);
+    }
+
     //Check if the number of arguments is correct
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <-n value> <-q value> <-d value> <-t value> <file-list>\n", argv[0]);
@@ -67,15 +73,18 @@ int main(int argc, char *argv[]) {
     }
     if (pid == 0) { //child
         close(pipefd[1]); //close write
-        collectorExecutor(sockfd, pipefd[0]); //execute collector code
+        collectorExecutor(sockfd, pipefd[0],pipeKill[0]); //execute collector code
         close(sockfd); //close socket
         close(pipefd[0]); //close read
+        close(pipeKill[0]);
         exit(EXIT_SUCCESS);
     }
     if (pid > 0) { //parent
         close(pipefd[0]); //close read
-        executeMasterWorker(argc, argv, pipefd[1]); //execute master-worker code
+        close(pipeKill[0]);
+        executeMasterWorker(argc, argv, pipefd[1],pipeKill[1]); //execute master-worker code
         close(pipefd[1]); //close write
+        close (pipeKill[1]);
     }
 
     exit(EXIT_SUCCESS);

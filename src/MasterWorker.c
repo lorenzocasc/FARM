@@ -16,6 +16,7 @@
 #define SOCK_PATH "./farm.sck"
 
 int pipe_fd;
+int pipe_kill;
 static long nThreads = 4;
 static long queueSize = 8;
 static long delay = 0;
@@ -52,11 +53,11 @@ void handleSIGUSR1(int signal) {
     //destroyThreadPool(threadpool,1);
     char message[] = "print";
     int len = strlen(message);
-    if(write(pipe_fd, &len, sizeof(int)) == -1){
+    if(write(pipe_kill, &len, sizeof(int)) == -1){
         perror("error writing in the pipe\n");
         exit(EXIT_FAILURE);
     }
-    if (write(pipe_fd, message, len) == -1) {
+    if (write(pipe_kill, message, len) == -1) {
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
@@ -131,10 +132,11 @@ void signalHandler(sigset_t *set) {
 }
 
 
-void *executeMasterWorker(int argc, char *argv[], int pipefd) {
+void *executeMasterWorker(int argc, char *argv[], int pipefd, int pipeKill) {
     struct sockaddr_un server_addr;
     int socket_fd;
     pipe_fd = pipefd;
+    pipe_kill = pipeKill;
 
     sigset_t set;
     signalHandler(&set);
@@ -150,6 +152,7 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     char *path = NULL;
     int queue = 0; //flag that assumes 1 only if a queue of files is passed
 
+    //calling a function that returns config values for the threadpool
     getConfigArgs(argc, argv, &nThreads, &queueSize, &path, &delay, &queue);
 
     if (path == NULL && queue == 0) {
@@ -157,16 +160,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
         exit(EXIT_FAILURE);
 
     }
-
-    /*
-    printf("--------------------\n");
-    printf("nThreads: %ld\n", nThreads);
-    printf("queueSize: %ld\n", queueSize);
-    if (path != NULL)printf("path: %s\n", path);
-    printf("delay: %ld\n", delay);
-    printf("queue: %d\n", queue);
-    printf("--------------------\n");
-    */
 
     //connect to socket of the collector, if it fails exit
     if (connect(socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
@@ -183,7 +176,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
     //Wait for threads to finish
     destroyThreadPool(threadpool, 0);
-    //printf("Threadpool destroyed\n");
 
     //send message "quit" to collector
     char message[] = "quit";
@@ -199,7 +191,7 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
 
     //*****************
-    close(socket_fd); //close socket, mi fa buggare la ricezione del messaggio nel collector a volte
+    close(socket_fd);
     //****************
 
     //free memory
@@ -208,9 +200,3 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     return NULL;
 }
 
-//Devo 1) creare una nuova pipe per gestire solo il print
-    // 2) nel collector gestisco la read da questa nuova pipe con un thread
-    // 3) nel collector, devo impostare
-    //    un flag nuovo, messo a uno quando le check della read dal socket
-    // vanno a 1, cosi prima di uscire dal ciclo totale devo controllare
-    // se hanno finito di leggere dalla socket e se continueloop è 0, fine.
