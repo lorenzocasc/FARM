@@ -76,13 +76,5 @@ int destroyThreadPool(threadpool_t *pool, int force);
 int addToThreadPool(threadpool_t *pool, long (*fun)(void *),void *arg);
 
 
-/**
- * @function spawnThread
- * @brief lancia un thread che esegue la funzione fun passata come parametro, il thread viene lanciato in modalità detached e non fa parte del pool.
- * @param fun  funzione da eseguire per eseguire il task
- * @param arg  argomento della funzione
- * @return 0 se successo, -1 in caso di fallimento, errno viene settato opportunamente.
- */
-int spawnThread(long (*f)(void*), void* arg);
 
 #endif //SOLPROJECT_THREADPOOL_H

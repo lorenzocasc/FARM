@@ -249,40 +249,4 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
 }
 
 
-/**
- * @function void *thread_proxy(void *argl)
- * @brief funzione eseguita dal thread worker che non appartiene al pool
- */
-static void *proxy_thread(void *arg) {
-    taskfun_t *task = (taskfun_t *) arg;
-    // eseguo la funzione
-    (*(task->fun))(task->arg);
 
-    free(task);
-    return NULL;
-}
-
-// fa lo spawn di un thread in modalità detached
-int spawnThread(long (*f)(void *), void *arg) {
-    if (f == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    taskfun_t *task = malloc(sizeof(taskfun_t));   // la memoria verra' liberata dal proxy
-    if (!task) return -1;
-    task->fun = f;
-    task->arg = arg;
-
-    pthread_t thread;
-    pthread_attr_t attr;
-    if (pthread_attr_init(&attr) != 0) return -1;
-    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) return -1;
-    if (pthread_create(&thread, &attr,
-                       proxy_thread, (void *) task) != 0) {
-        free(task);
-        errno = EFAULT;
-        return -1;
-    }
-    return 0;
-}

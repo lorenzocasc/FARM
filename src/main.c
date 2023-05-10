@@ -13,18 +13,27 @@
 
 #define SOCK_PATH "./farm.sck"
 
+//delete socket file if exists
 void deleteSocket() {
     unlink(SOCK_PATH);
 }
 
 int main(int argc, char *argv[]) {
 
+
+    //pipe for communicating "quit" messages between master and collector
+    //"quit" messages are sent by master to collector: 1) when it has finished its work and has to be terminated
+    //                                                 2) when it has to be terminated because of a SIGINT, SIGQUIT,
+    //                                                    SIGTERM and SIGHUP signal
     int pipefd[2];
     if(pipe(pipefd) == -1){
         perror("Error pipe");
         exit(EXIT_FAILURE);
     }
 
+
+    //pipe for communicating "print" messages between master and collector
+    //"print" messages are sent by master to collector when a SIGUSR1 signal is received
     int pipeKill[2];
     if(pipe(pipeKill) == -1){
         perror("Error pipe");
@@ -45,7 +54,7 @@ int main(int argc, char *argv[]) {
     int sockfd;
     struct sockaddr_un server_addr;
 
-    //Create socket
+    //Create server socket for the Collector
     if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         perror("Error creating socket");
         exit(EXIT_FAILURE);
@@ -68,7 +77,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-
+    //create child process
     pid_t pid = fork();
     if (pid == -1) { //error
         perror("fork");
@@ -89,6 +98,5 @@ int main(int argc, char *argv[]) {
         close(pipefd[1]); //close write
         close (pipeKill[1]); //close write
     }
-
     exit(EXIT_SUCCESS);
 }
