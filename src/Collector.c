@@ -144,9 +144,7 @@ void collectorExecutor(int sockfd, int pipefd, int pipeKill) {
 
     while (continueLoop || flagSocket) {
 
-
         rdset = set;
-
 
         int d;
         if ((d = select(maxfd + 1, &rdset, NULL, NULL, NULL)) == -1) {

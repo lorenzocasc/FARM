@@ -76,15 +76,15 @@ int main(int argc, char *argv[]) {
         collectorExecutor(sockfd, pipefd[0],pipeKill[0]); //execute collector code
         close(sockfd); //close socket
         close(pipefd[0]); //close read
-        close(pipeKill[0]);
+        close(pipeKill[0]); //close read
         exit(EXIT_SUCCESS);
     }
     if (pid > 0) { //parent
         close(pipefd[0]); //close read
-        close(pipeKill[0]);
+        close(pipeKill[0]); //close read
         executeMasterWorker(argc, argv, pipefd[1],pipeKill[1]); //execute master-worker code
         close(pipefd[1]); //close write
-        close (pipeKill[1]);
+        close (pipeKill[1]); //close write
     }
 
     exit(EXIT_SUCCESS);
