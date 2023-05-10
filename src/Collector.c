@@ -50,9 +50,12 @@ void *threadPipe(void *arg) {
             }
             buffer[len] = '\0';
             if (strcmp(buffer, "print") == 0) {
+                free(buffer);
                 LOCK_RETURN(&lock,NULL);
                 printQueue(head);
                 UNLOCK_RETURN(&lock,NULL);
+            }else{
+                free(buffer);
             }
         }
     }
@@ -173,6 +176,8 @@ int collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                             continueLoop = 0;
                             free(buffer);
                             continue;
+                        }else{
+                            free(buffer);
                         }
                     }
                 }
@@ -221,7 +226,6 @@ int collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                     pushOrdered(&head, buffer, sumSent); //pushing to <sum, path> into queue in order
                     UNLOCK_RETURN(&lock, -1); //unlocking mutex
 
-                    //c--;  //decrementing c to check if there is more data to read from socket
                     continue;
 
                 }

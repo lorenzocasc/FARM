@@ -10,10 +10,10 @@
 #include "threadpool.h"
 #include <signal.h>
 
-
-void * executeMasterWorker(int argc, char* argv[], int pipefd, int pipeKill);
-long value(char *string);
+void * executeMasterWorker(int argc, char* argv[], int pipefd, int pipeKill); //Function to execute the MasterWorker
+long value(char *string);  //Function to calculate the value of a file
 void signalHandler(sigset_t *set);
-void handleSIGUSR1(int signal);
-void handleHIQTU(int signal);
+void handleSIGUSR1(); //Function to handle SIGUSR1
+void handleHIQTU(); //Function to handle SIGQUIT, SIGINT, SIGTERM, SIGHUP
+int closeSocket(int socket); //Function to close the socket
 #endif //SOLPROJECT_MASTERWORKER_H
