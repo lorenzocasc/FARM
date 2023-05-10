@@ -49,7 +49,7 @@ long value(char *string) {
 }
 
 void handleSIGUSR1(int signal) {
-    destroyThreadPool(threadpool,1);
+    //destroyThreadPool(threadpool,1);
     char message[] = "print";
     int len = strlen(message);
     if(write(pipe_fd, &len, sizeof(int)) == -1){
@@ -61,7 +61,7 @@ void handleSIGUSR1(int signal) {
         exit(EXIT_FAILURE);
     }
 
-    exit(EXIT_SUCCESS);
+    //exit(EXIT_SUCCESS);
 }
 void handleHIQTU(int signal) {
     destroyThreadPool(threadpool,0);
@@ -140,7 +140,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     sigset_t set;
     signalHandler(&set);
 
-
     if ((socket_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         perror("error creating socket in masterworker");
         exit(EXIT_FAILURE);
@@ -198,8 +197,6 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
-
-
 
 
     //*****************

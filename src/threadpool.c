@@ -59,8 +59,8 @@ static void *workerpool_thread(void *threadpool) {
         pool->taskonthefly++;
 
         UNLOCK_RETURN(&(pool->lock), NULL);
+        //if(pool->delayTp > 0) sleep(pool->delayTp/1000);
 
-        if(pool->delayTp > 0) sleep(pool->delayTp/1000);
         long p = (*(task.fun))(task.arg);
 
         LOCK_RETURN(&(pool->lock), NULL);
@@ -68,6 +68,9 @@ static void *workerpool_thread(void *threadpool) {
 
         //write p sulla socket
         int ret, ret1, ret2;
+
+        if(pool->exiting > 1) break;
+
         if ((ret = write(pool->socket_fd, &p, sizeof(long))) == -1) {
             perror("write sum");
             free(tempPath);
@@ -90,19 +93,9 @@ static void *workerpool_thread(void *threadpool) {
             exit(EXIT_FAILURE);
         }
 
-        //printf("ret: %d, ret1: %d, ret2: %d\n", ret, ret1, ret2);
-        /*
-        char check;
-        if(read(pool->socket_fd, &check, sizeof(char)) == -1){
-            perror("read worker error");
-            free(tempPath);
-            free(task.arg);
-            exit(EXIT_FAILURE);
-        }
-         */
 
 
-        //printf("%d wrote path: %s -- answer: %c \n",myid, tempPath, check);
+
         free(tempPath);
         pool->taskonthefly--;
         pthread_cond_signal(&(pool->queue_cond));
@@ -218,7 +211,6 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
     int queue_size = abs(pool->queue_size);
     int nopending = (pool->queue_size == -1); // non dobbiamo gestire messaggi pendenti
 
-
     //queue in exit fase
     if (pool->exiting) {
         UNLOCK_RETURN(&(pool->lock), -1);
@@ -239,6 +231,8 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
             return 1;  // esco con valore "coda piena"
         }
     }
+
+    if(pool->delayTp > 0) sleep(pool->delayTp/1000);
     pool->pending_queue[pool->tail].fun = f;
     pool->pending_queue[pool->tail].arg = arg;
     pool->count++;
@@ -251,7 +245,6 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
         errno = r;
         return -1;
     }
-
     UNLOCK_RETURN(&(pool->lock), -1);
     return 0;
 }

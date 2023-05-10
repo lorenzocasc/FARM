@@ -121,11 +121,11 @@ void collectorExecutor(int sockfd, int pipefd) {
                             continue;
                         }
                         if (strcmp(buffer, "print") == 0) {
-                            continueLoop = 0;
+                            //continueLoop = 0;
                             printQueue(head);
                             free(buffer);
-                            freeQueue(&head);
-                            return;
+                            //freeQueue(&head);
+                            //return;
                         }
                     }
                 }
@@ -167,7 +167,7 @@ void collectorExecutor(int sockfd, int pipefd) {
                     }
                     buffer[pathSize] = '\0';
                     pushOrdered(&head, buffer, sumSent);
-                    c--;
+                    //c--;
                     continue;
 
                 }
