@@ -13,6 +13,9 @@
 
 #define SOCK_PATH "./farm.sck"
 
+void deleteSocket() {
+    unlink(SOCK_PATH);
+}
 
 int main(int argc, char *argv[]) {
 

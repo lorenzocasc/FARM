@@ -232,7 +232,6 @@ int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
             return 1;  // esco con valore "coda piena"
         }
     }
-
     pool->pending_queue[pool->tail].fun = f;
     pool->pending_queue[pool->tail].arg = arg;
     pool->count++;
