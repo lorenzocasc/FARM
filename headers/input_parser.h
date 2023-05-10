@@ -14,9 +14,7 @@
 #include "threadpool.h"
 #include "MasterWorker.h"
 
-long file_size(const char *path);
-
-int get_fd(const char *filename);
+long file_size(const char *path); //Returns the size of a file
 
 char *get_file_extension(const char *filename);
 

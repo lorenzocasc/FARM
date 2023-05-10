@@ -32,19 +32,7 @@ long file_size(const char *path) {
 }
 
 
-int get_fd(const char *filename) {
-
-    int fd;
-    if ((fd = open(filename, O_RDONLY)) == -1) {
-        perror("open");
-        exit(errno);
-    }
-
-    return fd;
-}
-
 char *get_file_extension(const char *filename) {
-
     char *dot = strrchr(filename, '.');
     if (!dot || dot == filename)
         return "";
@@ -152,7 +140,9 @@ int isNumber(const char *s, long *n) {
     return 1;   // non e' un numero
 }
 
-
+//Function that parses the input arguments needed to create the threadpool
+//Will return a path of a directory if present
+//Will return 1 in queue if present 0 otherwise
 void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, char **path, long *delay, int *queue) {
     int opt = 0;
     while ((opt = getopt(argc, input, "n:q:d:t:")) != -1) {
@@ -195,11 +185,10 @@ void getConfigArgs(int argc, char *input[], long *nThreads, long *queueSize, cha
     if (opt == -1 && (argc-optind)>0) {
         *queue = 1;
     }
-    //}
 
 }
 
-
+//Function that calls the addToThreadPool function to execute the tasks
 void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char *path) {
 
     if (path != NULL) {
@@ -208,11 +197,9 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
         }
     }
 
-
     if (*queue == 1) {
         while (optind < argc) {
             if (isValid(input[optind]) <= 0) {
-                //printf("Error: invalid file path %s\n ",input[optind] );
                 optind++;
                 continue;
             } else {
