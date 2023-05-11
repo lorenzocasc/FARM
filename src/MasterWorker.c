@@ -196,16 +196,19 @@ void *executeMasterWorker(int argc, char *argv[], int pipefd) {
     //Wait for threads to finish, after all the tasks in the queue are executed
     destroyThreadPool(threadpool, 0);
 
+
     //send message "quit" to collector
-    char message[] = "quit";
-    int len = strlen(message);
-    if(write(pipefd, &len, sizeof(int)) == -1){
-        perror("error writing in the pipe\n");
-        exit(EXIT_FAILURE);
-    }
-    if (write(pipefd, message, len) == -1) {
-        perror("error writing in the socket");
-        exit(EXIT_FAILURE);
+    if(quit == 0){
+        char message[] = "quit";
+        int len = strlen(message);
+        if(write(pipefd, &len, sizeof(int)) == -1){
+            perror("error writing in the pipe\n");
+            exit(EXIT_FAILURE);
+        }
+        if (write(pipefd, message, len) == -1) {
+            perror("error writing in the socket");
+            exit(EXIT_FAILURE);
+        }
     }
 
     //close the socket

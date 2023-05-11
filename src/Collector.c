@@ -64,7 +64,6 @@ int collectorExecutor(int sockfd, int pipefd) {
     sigset_t signalSet; //create signal set
     sigHandler(&signalSet); //set signal handler
 
-
     //accept connection from Master
     int clientfd;
     if ((clientfd = accept(sockfd, NULL, NULL)) == -1) {

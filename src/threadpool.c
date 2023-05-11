@@ -22,7 +22,6 @@ static void *workerpool_thread(void *threadpool) {
     pthread_t self = pthread_self();
     int myid = -1;
 
-    // non efficiente, si puo' fare meglio
     do {
         for (int i = 0; i < pool->numthreads; ++i)
             if (pthread_equal(pool->threads[i], self)) {
@@ -93,16 +92,12 @@ static void *workerpool_thread(void *threadpool) {
             exit(EXIT_FAILURE);
         }
 
-
-
-
         free(tempPath);
         pool->taskonthefly--;
         pthread_cond_signal(&(pool->queue_cond));
     }
     UNLOCK_RETURN(&(pool->lock), NULL);
 
-    //fprintf(stderr, "thread %d exiting\n", myid);
     return NULL;
 }
 
@@ -202,9 +197,6 @@ int destroyThreadPool(threadpool_t *pool, int force) {
 }
 
 int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
-
-    printf("ciao\n");
-
     if (pool == NULL || f == NULL) {
         errno = EINVAL;
         return -1;

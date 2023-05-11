@@ -18,3 +18,14 @@
 97	161	1683844279168202148	solProject	57ee4490ea350d8e
 0	61	1683844357038585441	CMakeFiles/solProject.dir/src/input_parser.c.o	3e8d15ef292feeff
 61	88	1683844357066586246	solProject	57ee4490ea350d8e
+1	46	1683844539279417063	CMakeFiles/solProject.dir/src/Collector.c.o	8ba5fe690a3b032e
+0	51	1683844539283417163	CMakeFiles/solProject.dir/src/MasterWorker.c.o	908f11c1aa10d78e
+51	76	1683844539307417766	solProject	57ee4490ea350d8e
+0	95	1683844610157287393	CMakeFiles/solProject.dir/src/MasterWorker.c.o	908f11c1aa10d78e
+95	174	1683844610229291055	solProject	57ee4490ea350d8e
+1	97	1683844671384240387	CMakeFiles/solProject.dir/src/MasterWorker.c.o	908f11c1aa10d78e
+98	150	1683844671436242768	solProject	57ee4490ea350d8e
+1	58	1683844733186940057	CMakeFiles/solProject.dir/src/threadpool.c.o	374c0af93bc2946b
+58	86	1683844733214941225	solProject	57ee4490ea350d8e
+0	80	1683844768212368200	CMakeFiles/solProject.dir/src/threadpool.c.o	374c0af93bc2946b
+81	107	1683844768256369953	solProject	57ee4490ea350d8e
