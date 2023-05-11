@@ -22,6 +22,7 @@ static long queueSize = 8; //default queue size
 static long delay = 0; //default delay
 threadpool_t *threadpool; //threadpool
 
+volatile sig_atomic_t quit = 0; //variable used to check if the program has to be terminated
 
 //function that calculates the result number of a file
 long value(char *string) {
@@ -67,8 +68,7 @@ void handleSIGUSR1() {
 
 //Function that writes the "quit" message in the pipe at SIGHUP, SIGINT, SIGQUIT, SIGTERM signal
 void handleHIQTU() {
-    destroyThreadPool(threadpool,0); //destroy the threadpool, 0 = waits for all the threads to finish
-                                                //and for the tasks in the queue to be executed
+    quit = 1; //set the quit variable to 1
     char message[] = "quit";
     int len = strlen(message);
     if(write(pipe_fd, &len, sizeof(int)) == -1){  //write the length of the message
@@ -79,12 +79,6 @@ void handleHIQTU() {
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
-
-    if(closeSocket(socketfd) == 0){ //close the socket
-        exit(EXIT_FAILURE);
-    }
-
-    exit(EXIT_SUCCESS);
 }
 //function to close the socket, returns 1 if successful, 0 otherwise
 int closeSocket(int socket){

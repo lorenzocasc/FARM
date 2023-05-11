@@ -202,6 +202,9 @@ int destroyThreadPool(threadpool_t *pool, int force) {
 }
 
 int addToThreadPool(threadpool_t *pool, long (*f)(void *), void *arg) {
+
+    printf("ciao\n");
+
     if (pool == NULL || f == NULL) {
         errno = EINVAL;
         return -1;

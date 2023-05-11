@@ -16,6 +16,7 @@
 
 #define maxPath 255
 
+extern volatile sig_atomic_t quit;
 
 long file_size(const char *path) {
 
@@ -97,10 +98,16 @@ int directoryFetch(char *path, threadpool_t *pool) {
                     directoryFetch(temp_array, pool);
                 } else {
                     if (isValid(temp_array) == 1) {
-                        char *newPath = malloc(length * sizeof(char)+1);
-                        strncpy(newPath, temp_array, length);
-                        newPath[length] = '\0';
-                        addToThreadPool(pool, (void *) value, newPath);
+                        if(quit == 0){
+                            char *newPath = malloc(length * sizeof(char)+1);
+                            strncpy(newPath, temp_array, length);
+                            newPath[length] = '\0';
+                            addToThreadPool(pool, (void *) value, newPath);
+                        }else{
+                            closedir(dir);
+                            return 1;
+                        }
+
                     }
                 }
             }
@@ -203,16 +210,21 @@ void getArgs(int argc, char *input[], threadpool_t *pool, const int *queue, char
                 optind++;
                 continue;
             } else {
-                char *pis = malloc(strlen(input[optind]) + 1);
-                strcpy(pis, input[optind]);
-                pis[strlen(input[optind])] = '\0';
-                int x = addToThreadPool(pool, (void *) value, pis);
-                if (x == -1) {
-                    printf("Error: Error while inserting the task \n");
+                if(quit == 0){
+                    char *pis = malloc(strlen(input[optind]) + 1);
+                    strcpy(pis, input[optind]);
+                    pis[strlen(input[optind])] = '\0';
+                    int x = addToThreadPool(pool, (void *) value, pis);
+                    if (x == -1) {
+                        printf("Error: Error while inserting the task \n");
+                        optind++;
+                        continue;
+                    }
                     optind++;
-                    continue;
+                }else{
+                    return;
                 }
-                optind++;
+
             }
         }
     }

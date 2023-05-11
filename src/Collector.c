@@ -169,9 +169,7 @@ int collectorExecutor(int sockfd, int pipefd) {
                         continue;
                     }
                     buffer[pathSize] = '\0';
-
                     pushOrdered(&head, buffer, sumSent); //pushing to <sum, path> into queue in order
-
                     continue;
 
                 }
@@ -185,5 +183,4 @@ int collectorExecutor(int sockfd, int pipefd) {
     freeQueue(&head);
 
     return 1;
-
 }
