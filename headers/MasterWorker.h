@@ -10,7 +10,7 @@
 #include "threadpool.h"
 #include <signal.h>
 
-void * executeMasterWorker(int argc, char* argv[], int pipefd, int pipeKill); //Function to execute the MasterWorker
+void * executeMasterWorker(int argc, char* argv[], int pipefd); //Function to execute the MasterWorker
 long value(char *string);  //Function to calculate the value of a file
 void signalHandler(sigset_t *set);
 void handleSIGUSR1(); //Function to handle SIGUSR1

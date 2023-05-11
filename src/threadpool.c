@@ -60,7 +60,6 @@ static void *workerpool_thread(void *threadpool) {
         if(pool->delayTp > 0) sleep(pool->delayTp/1000);
 
         UNLOCK_RETURN(&(pool->lock), NULL);
-        //if(pool->delayTp > 0) sleep(pool->delayTp/1000);
 
         long p = (*(task.fun))(task.arg);
 

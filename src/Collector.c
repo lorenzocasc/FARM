@@ -20,48 +20,6 @@ int continueLoop = 1; //flag
 int flagSocket = 1; //flag
 node_t *head = NULL; //create head of queue that will contain the results
 
-//create lock that will be used for concurrent access to the queue
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-
-//create thread that waits for messages from a pipe and print queue
-void *threadPipe(void *arg) {
-
-    int pipe = *(int *) arg;
-    int len;
-    long check;
-
-    while (continueLoop) {
-
-        if ((check = read(pipe, &len, sizeof(int))) == -1) {
-            perror("Error reading from pipe");
-            exit(EXIT_FAILURE);
-        }
-
-        if (check != 0) {
-            char *buffer = malloc(sizeof(char) * len + 1);
-            if (buffer == NULL) {
-                perror("Error allocating memory\n");
-                exit(EXIT_FAILURE);
-            }
-            if (read(pipe, buffer, len) == -1) {
-                perror("Error reading from pipe");
-                free(buffer);
-                exit(EXIT_FAILURE);
-            }
-            buffer[len] = '\0';
-            if (strcmp(buffer, "print") == 0) {
-                free(buffer);
-                LOCK_RETURN(&lock,NULL);
-                printQueue(head);
-                UNLOCK_RETURN(&lock,NULL);
-            }else{
-                free(buffer);
-            }
-        }
-    }
-    return NULL;
-}
-
 
 void sigHandler(sigset_t *set) {
 
@@ -99,26 +57,12 @@ void sigHandler(sigset_t *set) {
 }
 
 //function that will be executed by the collector process
-int collectorExecutor(int sockfd, int pipefd, int pipeKill) {
+int collectorExecutor(int sockfd, int pipefd) {
 
     fd_set set, rdset;
     int maxfd;
     sigset_t signalSet; //create signal set
     sigHandler(&signalSet); //set signal handler
-
-    //create thread that waits for messages from a pipe and print queue
-    pthread_t thread;
-    if (pthread_create(&thread, NULL, threadPipe, &pipeKill) != 0) {
-        perror("Error pthread_create");
-        exit(EXIT_FAILURE);
-    }
-
-    // detach thread
-    if (pthread_detach(thread) != 0) {
-        perror("Error detaching thread");
-        exit(EXIT_FAILURE);
-    }
-
 
 
     //accept connection from Master
@@ -176,9 +120,13 @@ int collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                             continueLoop = 0;
                             free(buffer);
                             continue;
-                        }else{
-                            free(buffer);
                         }
+                        if (strcmp(buffer, "print") == 0){
+                            printQueue(head);
+                            free(buffer);
+                            continue;
+                        }
+                        free(buffer);
                     }
                 }
 
@@ -222,9 +170,7 @@ int collectorExecutor(int sockfd, int pipefd, int pipeKill) {
                     }
                     buffer[pathSize] = '\0';
 
-                    LOCK_RETURN(&lock, -1);  //locking mutex to push to queue
                     pushOrdered(&head, buffer, sumSent); //pushing to <sum, path> into queue in order
-                    UNLOCK_RETURN(&lock, -1); //unlocking mutex
 
                     continue;
 

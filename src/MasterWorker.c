@@ -16,7 +16,6 @@
 #define SOCK_PATH "./farm.sck"
 
 int pipe_fd;  //pipe for the master-collector communication, used to send "quit" message
-int pipe_kill; //pipe for master-collector communication, used to send "print" message
 int socketfd; //socket for the master-collector communication
 static long nThreads = 4; //default thread number
 static long queueSize = 8; //default queue size
@@ -56,11 +55,11 @@ long value(char *string) {
 void handleSIGUSR1() {
     char message[] = "print";
     int len = strlen(message);
-    if(write(pipe_kill, &len, sizeof(int)) == -1){ //write the length of the message
+    if(write(pipe_fd, &len, sizeof(int)) == -1){ //write the length of the message
         perror("error writing in the pipe\n");
         exit(EXIT_FAILURE);
     }
-    if (write(pipe_kill, message, len) == -1) { //write the message
+    if (write(pipe_fd, message, len) == -1) { //write the message
         perror("error writing in the socket");
         exit(EXIT_FAILURE);
     }
@@ -154,13 +153,12 @@ void signalHandler(sigset_t *set) {
 // - argc, argv, pipefd, pipeKill : arguments passed from the main function
 // - returns NULL
 // - the function creates a socket and connects to the collector, then it creates a threadpool
-void *executeMasterWorker(int argc, char *argv[], int pipefd, int pipeKill) {
+void *executeMasterWorker(int argc, char *argv[], int pipefd) {
 
     //////////// Config variables ////////////
     struct sockaddr_un server_addr; //server address
     int socket_fd; //socket file descriptor
     pipe_fd = pipefd; //global variable pipe_fd = pipefd
-    pipe_kill = pipeKill; //global variable pipe_kill = pipeKill
     char *path = NULL; //path of the directory passed as argument if present
     int queue = 0; //flag that assumes 1 only if a queue of files is passed
 

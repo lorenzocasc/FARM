@@ -32,20 +32,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-    //pipe for communicating "print" messages between master and collector
-    //"print" messages are sent by master to collector when a SIGUSR1 signal is received
-    int pipeKill[2];
-    if(pipe(pipeKill) == -1){
-        perror("Error pipe");
-        exit(EXIT_FAILURE);
-    }
-
-    //Check if the number of arguments is correct
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <-n value> <-q value> <-d value> <-t value> <file-list>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
     // cancello il socket file se esiste
     deleteSocket();
     // se qualcosa va storto ....
@@ -70,12 +56,19 @@ int main(int argc, char *argv[]) {
         perror("Error binding socket");
         exit(EXIT_FAILURE);
     }
-
     //listen
     if (listen(sockfd, 1) == -1) {
         perror("Error listening");
         exit(EXIT_FAILURE);
     }
+
+    //Check if the number of arguments is correct
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <-n value> <-q value> <-d value> <-t value> <file-list>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+
 
     //create child process
     pid_t pid = fork();
@@ -85,18 +78,15 @@ int main(int argc, char *argv[]) {
     }
     if (pid == 0) { //child
         close(pipefd[1]); //close write
-        collectorExecutor(sockfd, pipefd[0],pipeKill[0]); //execute collector code
+        collectorExecutor(sockfd, pipefd[0]); //execute collector code
         close(sockfd); //close socket
         close(pipefd[0]); //close read
-        close(pipeKill[0]); //close read
         exit(EXIT_SUCCESS);
     }
     if (pid > 0) { //parent
         close(pipefd[0]); //close read
-        close(pipeKill[0]); //close read
-        executeMasterWorker(argc, argv, pipefd[1],pipeKill[1]); //execute master-worker code
+        executeMasterWorker(argc, argv, pipefd[1]); //execute master-worker code
         close(pipefd[1]); //close write
-        close (pipeKill[1]); //close write
     }
     exit(EXIT_SUCCESS);
 }
